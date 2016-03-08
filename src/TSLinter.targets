@@ -8,8 +8,7 @@
   <Target
     Name="TSLint"
     Inputs="$(TypeScriptAllProjects);@(TypeScriptCompile)"
-    Outputs="$(OutDir)TSLintFileList.txt"
-    AfterTargets="CompileTypeScript">
+    Outputs="$(OutDir)TSLintFileList.txt">
 
     <PropertyGroup>
       <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-4.3.2.0.exe"))</NodeExe>

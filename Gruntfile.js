@@ -18,6 +18,7 @@ module.exports = function (grunt) {
                 "expand": true,
                 "flatten": true,
                 "src": [
+                    "src/Install.ps1",
                     "src/node*.exe",
                     "src/*.targets",
                     "package.json",
