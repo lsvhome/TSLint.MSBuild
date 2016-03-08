@@ -1,0 +1,16 @@
+{
+  "name": "tslinter",
+  "version": "0.0.0",
+  "description": "A tslint tool.",
+  "main": "runner.js",
+  "author": "Joshua K Goldberg",
+  "license": "ISC",
+  "dependencies": {
+    "tslint": "^3.5.0",
+    "typescript": "^1.8.7",
+    "yargs": "^4.2.0"
+  },
+  "devDependencies": {
+    "typings": "^0.7.3"
+  }
+}
