@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
         "target": "es6",
         "outFile": "dist/runner.js"
     },
@@ -9,8 +8,5 @@
         "src/FolderCollection.ts",
         "src/index.ts",
         "src/LintRunner.ts"
-    ],
-    "exclude": [
-        "node_modules"
     ]
 }

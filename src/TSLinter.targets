@@ -12,8 +12,8 @@
     AfterTargets="CompileTypeScript">
 
     <PropertyGroup>
-      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\dist\node-4.3.2.0.exe"))</NodeExe>
-      <TSLintScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\dist\runner.js"))</TSLintScript>
+      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-4.3.2.0.exe"))</NodeExe>
+      <TSLintScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\runner.js"))</TSLintScript>
       <TSLintFileListFilename>$(OutDir)TSLintFileList.txt</TSLintFileListFilename>
     </PropertyGroup>
 
