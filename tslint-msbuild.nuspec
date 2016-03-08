@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>TSLint.MSBuild</id>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <authors>palantir, joshuakgoldberg</authors>
     <owners>joshuakgoldberg</owners>
     <licenseUrl>https://github.com/joshuakgoldberg/tslint-msbuild/blob/master/LICENSE.md</licenseUrl>

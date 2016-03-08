@@ -1,6 +1,6 @@
 {
   "name": "tslint-msbuild",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": " An MSBuild target for Palantir's wonderful TSLint.",
   "author": "Joshua K Goldberg",
   "license": "MIT",
