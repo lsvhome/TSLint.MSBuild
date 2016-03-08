@@ -11,16 +11,25 @@ module.exports = function (grunt) {
                 "distribution": "dist"
             },
         },
-        "clean": ["<%= meta.paths.distribution %>"],
+        "clean": ["<%= meta.paths.distribution %>/*.*"],
         "copy": {
             "distribution": {
-                "cwd": "src",
                 "dest": "dist/",
-                "expand": "true",
+                "expand": true,
+                "flatten": true,
                 "src": [
-                    "node*.exe",
-                    "*.targets"
+                    "src/node*.exe",
+                    "src/*.targets",
+                    "package.json",
+                    "LICENSE.md",
+                    "README.md"
                 ]
+            }
+        },
+        "nugetpack": {
+            "distribution": {
+                "src": "tslint-msbuild.nuspec",
+                "dest": "<%= meta.paths.distribution %>"
             }
         },
         "tslint": {
@@ -40,12 +49,13 @@ module.exports = function (grunt) {
         }
     });
     
-    grunt.loadNpmTasks("grunt-tslint");
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-contrib-copy");
+    grunt.loadNpmTasks("grunt-nuget");
     grunt.loadNpmTasks("grunt-ts");
+    grunt.loadNpmTasks("grunt-tslint");
     
     grunt.registerTask("default", [
-        "tslint", "clean", "ts", "copy"
+        "tslint", "clean", "ts", "copy", "nugetpack"
     ]);
 };

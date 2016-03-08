@@ -1,5 +1,11 @@
+# Build tools
 .tscache
-dist
 node_modules
+nuget*.exe
 typings
+
+# Output
+dist
 src/**/*.js
+tools
+*.nupkg

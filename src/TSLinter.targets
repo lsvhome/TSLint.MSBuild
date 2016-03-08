@@ -27,9 +27,16 @@
       Lines="@(TSLintFile->'%(Identity)')"
       Overwrite="true" />
 
+    <!-- Install necessary node packages -->
+    <!-- TODO: Install them with Install.ps1 -->
+    <!-- TODO: Dynamically get the package name -->
+    <Exec
+        Command="npm install tslint typescript yargs"
+        WorkingDirectory="..\packages\TSLint.MSBuild.0.0.2\tools" />
+
     <!-- Run TSLint  -->
     <Exec 
-        Command="$(NodeExe) &quot;$(TSLintScript)&quot; --files &quot;$(TSLintFileListFilename)&quot;"
+        Command="&quot;$(NodeExe)&quot; &quot;$(TSLintScript)&quot; --files &quot;$(TSLintFileListFilename)&quot;"
         IgnoreExitCode="true" />
     
     <!-- Clean up our compiled file list on "clean" -->
