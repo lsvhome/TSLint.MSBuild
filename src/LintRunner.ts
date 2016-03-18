@@ -13,8 +13,8 @@
 declare type ITSLintConfig = any;
 
 namespace LinterTest {
-    let fs = require("fs"),
-        TSLinter = require("tslint");
+    var fs = require("fs"),
+        tslint = require("../../../packages/tslint.3.5.2/tools/node_modules/tslint");
 
     /**
      * Driver for running TSLint on a number of files.
@@ -46,7 +46,7 @@ namespace LinterTest {
          */
         runTSLint(): Promise<string[]> {
             return new Promise<string[]>(resolve => {
-                let folders: Folder[] = this.folders.getFolders(),
+                var folders: Folder[] = this.folders.getFolders(),
                     lintPromises = folders.map(folder => this.lintFolder(folder));
 
                 Promise.all(lintPromises).then(errors => {
@@ -62,9 +62,14 @@ namespace LinterTest {
          * @returns A promise for TSLint errors, in alphabetic order of file path.
          */
         private lintFolder(folder: Folder): Promise<string[]> {
+            var lintConfig: ITSLintConfig = folder.getTSLintConfig();
+
+            if (!lintConfig) {
+                throw new Error(`No tslint.config available for '${folder.getPath()}'`);
+            }
+
             return new Promise<string[]>(resolve => {
-                let lintConfig: ITSLintConfig = folder.getTSLintConfig(),
-                    filePaths: string[] = folder.getFilePaths(),
+                var filePaths: string[] = folder.getFilePaths(),
                     filePromises: Promise<string[]>[] = filePaths.map(
                         filePath => this.lintFile(filePath, lintConfig));
 
@@ -90,7 +95,7 @@ namespace LinterTest {
                     }
 
                     try {
-                        let linter = new TSLinter(filePath, result.toString(), lintConfig),
+                        var linter = new tslint(filePath, result.toString(), lintConfig),
                             errorSummary = linter.lint();
 
                         resolve(JSON.parse(errorSummary.output));

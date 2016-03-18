@@ -9,9 +9,8 @@
 "use strict";
 
 namespace LinterTest {
-    let fs = require("fs"),
-        path = require("path"),
-        yargs = require("yargs");
+    var fs = require("fs"),
+        path = require("path");
 
     /**
      * Retrieves the list of input .ts files from a text file. 
@@ -25,21 +24,6 @@ namespace LinterTest {
             .replace(/\r/g, "")
             .split("\n")
             .filter(file => file);
-    }
-
-    /**
-     * @returns Command-line arguments, mainly the files text file path.
-     */
-    function readCommandLineArgs() {
-        return yargs
-            .usage("usage: $0")
-            .demand(["files"])
-            .options({
-                "files": {
-                    describe: "path to a text file containing a list of .ts files to be linted, one file per line"
-                }
-            })
-            .argv;
     }
 
     /**
@@ -62,8 +46,8 @@ namespace LinterTest {
     (() => {
         "use strict";
 
-        let args = readCommandLineArgs(),
-            filePaths = getInputFilesList(args.files),
+        var summaryFilePath: string = process.argv[2],
+            filePaths: string[] = getInputFilesList(summaryFilePath),
             runner = new LinterTest.LintRunner();
 
         runner
@@ -74,7 +58,7 @@ namespace LinterTest {
                     return;
                 }
 
-                let lintErrorsFormatted = lintErrors
+                var lintErrorsFormatted = lintErrors
                     .map(lintError => formatOutput(lintError))
                     .join("\n");
 

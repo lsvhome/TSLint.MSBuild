@@ -30,7 +30,7 @@ namespace LinterTest {
          * @returns The known added folders, in sorted order.
          */
         getFolders(): Folder[] {
-            let folderPaths: string[] = Object.keys(this.folders);
+            var folderPaths: string[] = Object.keys(this.folders);
 
             folderPaths.sort();
 
@@ -43,7 +43,7 @@ namespace LinterTest {
          * @param filePath   A path to a file.
          */
         addFilePath(filePath: string): void {
-            let folder = this.addFolderPath(this.parseParentPathFromPath(filePath));
+            var folder = this.addFolderPath(this.parseParentPathFromPath(filePath));
 
             folder.addFilePath(filePath);
         }
@@ -55,7 +55,7 @@ namespace LinterTest {
          * @returns A representation of that folder.
          */
         addFolderPath(folderPath: string): Folder {
-            let folder = this.folders[folderPath];
+            var folder = this.folders[folderPath];
 
             if (!folder) {
                 this.pendingLoads += 1;
@@ -117,7 +117,7 @@ namespace LinterTest {
          * @todo Research if this is possible using the path module.
          */
         private parseParentPathFromPath(folderPath: string): string {
-            let lastForwardSlashIndex: number = folderPath.lastIndexOf("/"),
+            var lastForwardSlashIndex: number = folderPath.lastIndexOf("/"),
                 lastBackSlashIndex: number = folderPath.lastIndexOf("\\"),
                 lastSlashIndex: number = Math.max(lastForwardSlashIndex, lastBackSlashIndex),
                 parentPath: string = folderPath.substring(0, lastSlashIndex);

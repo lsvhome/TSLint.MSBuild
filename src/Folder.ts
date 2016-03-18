@@ -11,7 +11,7 @@
 declare type ITSConfig = any;
 
 namespace LinterTest {
-    let fs = require("fs"),
+    var fs = require("fs"),
         path = require("path");
 
     /**
@@ -40,6 +40,13 @@ namespace LinterTest {
          */
         constructor(path: string) {
             this.path = path;
+        }
+
+        /**
+         * @returns The path to this folder.
+         */
+        getPath(): string {
+           return this.path;
         }
 
         /**
