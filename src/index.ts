@@ -1,15 +1,12 @@
-/**
- * (c) Microsoft
- */
 /// <reference path="../typings/main/ambient/node/node.d.ts" />
 /// <reference path="Folder.ts" />
 /// <reference path="FolderCollection.ts" />
 /// <reference path="LintRunner.ts" />
 
-"use strict";
+namespace TSLint.MSBuild {
+    "use strict";
 
-namespace LinterTest {
-    var fs = require("fs"),
+    let fs = require("fs"),
         path = require("path");
 
     /**
@@ -44,11 +41,9 @@ namespace LinterTest {
     }
 
     (() => {
-        "use strict";
-
-        var summaryFilePath: string = process.argv[2],
+        let summaryFilePath: string = process.argv[2],
             filePaths: string[] = getInputFilesList(summaryFilePath),
-            runner = new LinterTest.LintRunner();
+            runner = new LintRunner();
 
         runner
             .addFilePaths(filePaths)
@@ -58,11 +53,15 @@ namespace LinterTest {
                     return;
                 }
 
-                var lintErrorsFormatted = lintErrors
+                let lintErrorsFormatted = lintErrors
                     .map(lintError => formatOutput(lintError))
                     .join("\n");
 
                 console.error(lintErrorsFormatted);
+            })
+            .catch(error => {
+                console.error("Error running TSLint.MSBuild!");
+                console.error(error.toString());
             });
     })();
 }

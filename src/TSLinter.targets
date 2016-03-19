@@ -11,7 +11,7 @@
     Outputs="$(OutDir)TSLintFileList.txt">
 
     <PropertyGroup>
-      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-4.3.2.0.exe"))</NodeExe>
+      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-5.9.0.exe"))</NodeExe>
       <TSLintScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\runner.js"))</TSLintScript>
       <TSLintFileListFilename>$(OutDir)TSLintFileList.txt</TSLintFileListFilename>
     </PropertyGroup>
