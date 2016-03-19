@@ -1,7 +1,9 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "outFile": "dist/runner.js"
+        "outFile": "dist/runner.js",
+        "pretty": true,
+        "sourceMap": false,
+        "target": "es6"
     },
     "files": [
         "src/Folder.ts",

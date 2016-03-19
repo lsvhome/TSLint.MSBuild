@@ -1,17 +1,13 @@
-/**
- * (c) Microsoft
- */
 /// <reference path="../typings/main/ambient/node/node.d.ts" />
 /// <reference path="Folder.ts" />
 /// <reference path="FolderCollection.ts" />
 /// <reference path="LintRunner.ts" />
 
-"use strict";
+namespace TSLint.MSBuild {
+    "use strict";
 
-namespace LinterTest {
     let fs = require("fs"),
-        path = require("path"),
-        yargs = require("yargs");
+        path = require("path");
 
     /**
      * Retrieves the list of input .ts files from a text file. 
@@ -25,21 +21,6 @@ namespace LinterTest {
             .replace(/\r/g, "")
             .split("\n")
             .filter(file => file);
-    }
-
-    /**
-     * @returns Command-line arguments, mainly the files text file path.
-     */
-    function readCommandLineArgs() {
-        return yargs
-            .usage("usage: $0")
-            .demand(["files"])
-            .options({
-                "files": {
-                    describe: "path to a text file containing a list of .ts files to be linted, one file per line"
-                }
-            })
-            .argv;
     }
 
     /**
@@ -60,11 +41,9 @@ namespace LinterTest {
     }
 
     (() => {
-        "use strict";
-
-        let args = readCommandLineArgs(),
-            filePaths = getInputFilesList(args.files),
-            runner = new LinterTest.LintRunner();
+        let summaryFilePath: string = process.argv[2],
+            filePaths: string[] = getInputFilesList(summaryFilePath),
+            runner = new LintRunner();
 
         runner
             .addFilePaths(filePaths)
@@ -79,6 +58,10 @@ namespace LinterTest {
                     .join("\n");
 
                 console.error(lintErrorsFormatted);
+            })
+            .catch(error => {
+                console.error("Error running TSLint.MSBuild!");
+                console.error(error.toString());
             });
     })();
 }

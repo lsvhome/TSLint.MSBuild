@@ -1,16 +1,13 @@
-/**
- * (c) Microsoft
- */
 /// <reference path="../typings/main/ambient/node/node.d.ts" />
-
-"use strict";
 
 /**
  * @todo Get tslint definitions.
  */
 declare type ITSConfig = any;
 
-namespace LinterTest {
+namespace TSLint.MSBuild {
+    "use strict";
+
     let fs = require("fs"),
         path = require("path");
 
@@ -40,6 +37,13 @@ namespace LinterTest {
          */
         constructor(path: string) {
             this.path = path;
+        }
+
+        /**
+         * @returns The path to this folder.
+         */
+        getPath(): string {
+           return this.path;
         }
 
         /**
@@ -80,7 +84,7 @@ namespace LinterTest {
          * @returns A Promise for whether a tsconfig.json was found.
          */
         loadTSLintConfig(): Promise<ITSConfig> {
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
                     if (error) {
                         resolve(false);

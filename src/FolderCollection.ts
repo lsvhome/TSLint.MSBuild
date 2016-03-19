@@ -1,12 +1,9 @@
-/**
- * (c) Microsoft
- */
 /// <reference path="../typings/main/ambient/node/node.d.ts" />
 /// <reference path="Folder.ts" />
 
-"use strict";
+namespace TSLint.MSBuild {
+    "use strict";
 
-namespace LinterTest {
     /**
      * A collection of folders, generated from individual file paths.
      */

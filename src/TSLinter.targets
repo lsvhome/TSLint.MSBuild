@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" InitialTargets="TSLint" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Ensures that if this file changes it forces a TypeScript rebuild -->
   <PropertyGroup>
     <TypeScriptAllProjects>$(TypeScriptAllProjects);$(MSBuildThisFileFullPath)</TypeScriptAllProjects>
@@ -11,7 +11,7 @@
     Outputs="$(OutDir)TSLintFileList.txt">
 
     <PropertyGroup>
-      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-4.3.2.0.exe"))</NodeExe>
+      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-5.9.0.exe"))</NodeExe>
       <TSLintScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\runner.js"))</TSLintScript>
       <TSLintFileListFilename>$(OutDir)TSLintFileList.txt</TSLintFileListFilename>
     </PropertyGroup>
@@ -28,7 +28,7 @@
 
     <!-- Run TSLint  -->
     <Exec 
-        Command="&quot;$(NodeExe)&quot; &quot;$(TSLintScript)&quot; --files &quot;$(TSLintFileListFilename)&quot;"
+        Command="&quot;$(NodeExe)&quot; &quot;$(TSLintScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
         IgnoreExitCode="true" />
     
     <!-- Clean up our compiled file list on "clean" -->
