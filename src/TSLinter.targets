@@ -28,7 +28,7 @@
 
     <!-- Run TSLint  -->
     <Exec 
-        Command="&quot;$(NodeExe)&quot; &quot;$(TSLintScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
+        Command="&quot;$(NodeExe)&quot; --harmony &quot;$(TSLintScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
         IgnoreExitCode="true" />
     
     <!-- Clean up our compiled file list on "clean" -->
