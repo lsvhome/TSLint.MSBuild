@@ -21,7 +21,6 @@
     "grunt-nuget": "^0.1.5",
     "grunt-ts": "^5.3.2",
     "grunt-tslint": "^3.0.3",
-    "typescript": "^1.8.7",
     "typings": "^0.7.3"
   }
 }

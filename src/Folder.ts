@@ -1,4 +1,4 @@
-/// <reference path="../typings/main/ambient/node/node.d.ts" />
+/// <reference path="../typings/main/ambient/node/index.d.ts" />
 
 /**
  * @todo Get tslint definitions.

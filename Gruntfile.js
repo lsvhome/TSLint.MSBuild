@@ -29,7 +29,7 @@ module.exports = function (grunt) {
         },
         "nugetpack": {
             "distribution": {
-                "src": "tslint-msbuild.nuspec",
+                "src": "TSLint.MSBuild.nuspec",
                 "dest": "<%= meta.paths.distribution %>"
             }
         },
