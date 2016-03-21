@@ -56,7 +56,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-ts");
     grunt.loadNpmTasks("grunt-tslint");
     
+    grunt.registerTask("quick", [
+        "tslint", "clean", "ts", "copy"
+    ]);
+    
     grunt.registerTask("default", [
-        "tslint", "clean", "ts", "copy", "nugetpack"
+        "quick", "nugetpack"
     ]);
 };

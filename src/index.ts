@@ -34,7 +34,7 @@ namespace TSLint.MSBuild {
             return lintError;
         }
 
-        return lintError.name
+        return lintError.name.replace("/", "\\")
             + `(${(lintError.startPosition.line + 1)},${(lintError.startPosition.character + 1)})`
             + `: error tslint-${lintError.ruleName}`
             + `: TSLint failure: ${lintError.failure}.`;
@@ -45,13 +45,12 @@ namespace TSLint.MSBuild {
             filePaths: string[] = getInputFilesList(summaryFilePath),
             runner = new LintRunner();
 
-        console.log(`Running TSLint on ${filePaths.length} files...`);
         runner
             .addFilePaths(filePaths)
             .then(() => runner.runTSLint())
             .then(lintErrors => {
                 if (lintErrors.length === 0) {
-                    console.log("No errors in TSLint!");
+                    console.log("No errors in TSLint.");
                     return;
                 }
 
@@ -61,7 +60,6 @@ namespace TSLint.MSBuild {
 
                 console.error(lintErrorsFormatted);
             })
-            .then(() => console.log("TSLint completed."))
             .catch(error => {
                 console.error("Error running TSLint!");
                 console.error(error.toString());

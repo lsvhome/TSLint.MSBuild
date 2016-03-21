@@ -1,5 +1,6 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
 /// <reference path="Folder.ts" />
+/// <reference path="WaitLock.ts" />
 
 namespace TSLint.MSBuild {
     "use strict";
@@ -14,14 +15,9 @@ namespace TSLint.MSBuild {
         private folders: { [i: string]: Folder } = {};
 
         /**
-         * How many tslint.json loads are currently pending.
+         * Waiter for loading all tslint.json configurations.
          */
-        private pendingLoads: number = 0;
-
-        /**
-         * Callbacks waiting for pending loads to complete.
-         */
-        private loadingCallbacks: Function[] = [];
+        private loadWaiter: WaitLock = new WaitLock();
 
         /**
          * @returns The known added folders, in sorted order.
@@ -39,12 +35,14 @@ namespace TSLint.MSBuild {
          * 
          * @param filePath   A path to a file.
          */
-        addFilePath(filePath: string): Promise<Folder> {
+        addFilePath(filePath: string): Promise<void> {
+            this.loadWaiter.markActionStart();
+
             return this
                 .addFolderPath(this.parseParentPathFromPath(filePath))
                 .then(folder => {
                     folder.addFilePath(filePath);
-                    return folder;
+                    this.loadWaiter.markActionCompletion();
                 });
         }
 
@@ -61,12 +59,13 @@ namespace TSLint.MSBuild {
                 return new Promise(resolve => resolve(folder));
             }
 
-            this.pendingLoads += 1;
             folder = this.folders[folderPath] = new Folder(folderPath);
 
             return folder
                 .loadTSLintConfig()
-                .then(lintConfig => this.onFolderLoad(lintConfig, folderPath));
+                .then(lintConfig => {
+                    return this.onFolderLoad(lintConfig, folderPath);
+                });
         }
 
         /**
@@ -76,48 +75,67 @@ namespace TSLint.MSBuild {
          * @param callback   A callback for when loading is complete.
          */
         awaitLoading(callback: Function): void {
-            this.loadingCallbacks.push(callback);
+            this.loadWaiter.addCallback(callback);
         }
 
         /**
          * Responds to a folder load.
          * 
-         * @param lintConfig   The tslint.json settingsforthefolder, if available. 
+         * @param lintConfig   The tslint.json settings for the folder, if available. 
          * @param folderPath   The path to the folder.
          * @returns A promise for the folder.
          */
         private onFolderLoad(lintConfig: any, folderPath: string): Promise<Folder> {
+            let folder: Folder = this.folders[folderPath],
+                completion = resolve => resolve(folder),
+                extraWork: () => Promise<any>;
+
             if (!lintConfig) {
-                this.checkFolderParent(folderPath);
+                extraWork = () => this.checkFolderParent(folderPath);
             }
 
-            this.pendingLoads -= 1;
-
-            if (this.pendingLoads === 0) {
-                this.loadingCallbacks.forEach(loadingCallback => loadingCallback());
-                this.loadingCallbacks = [];
-            }
-
-            return new Promise(resolve => this.folders[folderPath]);
+            return new Promise(resolve => {
+                if (extraWork) {
+                    extraWork().then(() => completion(resolve));
+                } else {
+                    completion(resolve);
+                }
+            });
         }
 
         /**
-         * Checks for a folder's parent's tslint.json for a folder that doesn'that
+         * Checks for a folder's parent's tslint.json for a folder that doesn't
          * have its own, recursively adding parent paths.
          * 
          * @param folderPath   A path to a folder that has been loaded.
-         * @todo Check relative to the root solution/package path.
+         * @returns A promise for the parent Folder, if it exists.
+         * @todo Check relative to the root solution/package path?
+         * @todo Should this reject instead of resolve with undefined?
          */
-        private checkFolderParent(folderPath: string): Promise<void> {
-            if (folderPath.length < 3) {
-                return;
+        private checkFolderParent(folderPath: string): Promise<Folder> {
+            if (folderPath.length === 0) {
+                return new Promise(resolve => resolve(undefined));
             }
 
-            let folder: Folder = this.folders[folderPath];
+            let folder: Folder = this.folders[folderPath],
+                parentPath: string = this.parseParentPathFromPath(folderPath);
+
+            if (parentPath === folderPath) {
+                return new Promise(resolve => resolve(undefined));
+            }
 
             return this
-                .addFolderPath(this.parseParentPathFromPath(folderPath))
-                .then(parentFolder => folder.setTSLintConfig(folder.getTSLintConfig()));
+                .addFolderPath(parentPath)
+                .then(parentFolder => parentFolder.waitForTSLint())
+                .then(parentFolder => {
+                    let parentTSLintConfig = parentFolder.getTSLintConfig();
+
+                    if (parentTSLintConfig) {
+                        folder.setTSLintConfig(parentTSLintConfig);
+                    }
+
+                    return parentFolder;
+                });
         }
 
         /**
@@ -131,7 +149,11 @@ namespace TSLint.MSBuild {
                 lastSlashIndex: number = Math.max(lastForwardSlashIndex, lastBackSlashIndex),
                 parentPath: string = folderPath.substring(0, lastSlashIndex);
 
-            return parentPath || ".";
+            if (!parentPath || parentPath === folderPath) {
+                return ".";
+            }
+
+            return parentPath;
         }
     }
 }

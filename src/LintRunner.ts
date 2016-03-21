@@ -48,6 +48,7 @@ namespace TSLint.MSBuild {
          * @param filePaths   File paths to add to the folder collection.
          * @returns A promise of the folder collection waiting until all folders
          *          have determined their tslint.json.
+         * @todo Consider refactoring to be more Promise-y (is this anti-pattering?).
          */
         addFilePaths(filePaths: string[]): Promise<void> {
             filePaths.forEach(filePath => this.folders.addFilePath(filePath));

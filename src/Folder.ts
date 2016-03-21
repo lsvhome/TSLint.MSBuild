@@ -1,10 +1,5 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
 
-/**
- * @todo Get tslint definitions.
- */
-declare type ITSConfig = any;
-
 namespace TSLint.MSBuild {
     "use strict";
 
@@ -28,7 +23,12 @@ namespace TSLint.MSBuild {
         /**
          * TSLint configuration for this folder, if it exists.
          */
-        private tsconfig: ITSConfig;
+        private tsLintConfig: ITSLintConfig;
+
+        /**
+         * Waiter for loading the tslint.json configuration. 
+         */
+        private loadWaiter: WaitLock = new WaitLock();
 
         /**
          * Initializes a new instance of the Folder class.
@@ -56,8 +56,8 @@ namespace TSLint.MSBuild {
         /**
          * @returns TSLint configuration for this folder, if it exists.
          */
-        getTSLintConfig(): ITSConfig {
-            return this.tsconfig;
+        getTSLintConfig(): ITSLintConfig {
+            return this.tsLintConfig;
         }
 
         /**
@@ -65,8 +65,8 @@ namespace TSLint.MSBuild {
          * 
          * @param tsconfig   A new TSLint configuration for this folder.
          */
-        setTSLintConfig(tsconfig: ITSConfig): any {
-            this.tsconfig = tsconfig;
+        setTSLintConfig(tsconfig: ITSLintConfig): any {
+            this.tsLintConfig = tsconfig;
         }
 
         /**
@@ -83,7 +83,9 @@ namespace TSLint.MSBuild {
          * 
          * @returns A Promise for whether a tsconfig.json was found.
          */
-        loadTSLintConfig(): Promise<ITSConfig> {
+        loadTSLintConfig(): Promise<ITSLintConfig> {
+            this.loadWaiter.markActionStart();
+
             return new Promise(resolve => {
                 fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
                     if (error) {
@@ -91,13 +93,25 @@ namespace TSLint.MSBuild {
                         return;
                     }
 
-                    this.tsconfig = {
+                    this.tsLintConfig = {
                         formatter: "json",
                         configuration: JSON.parse(result.toString())
                     };
 
+                    this.loadWaiter.markActionCompletion();
                     resolve(true);
                 });
+            });
+        }
+
+        /**
+         * Waits for this folder to load its tsconfig.json.
+         * 
+         * @returns A Promise for this folder to load its tsconfig.json.
+         */
+        waitForTSLint(): Promise<Folder> {
+            return new Promise(resolve => {
+                return this.loadWaiter.addCallback(() => resolve(this));
             });
         }
     }

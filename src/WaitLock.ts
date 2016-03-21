@@ -1,0 +1,54 @@
+namespace TSLint.MSBuild {
+    "use strict";
+
+    /**
+     * Delays execution of callbacks until a number of actions are completed.
+     */
+    export class WaitLock {
+        /**
+         * A queue of callbacks to be executed when ready.
+         */
+        private callbacks: Function[] = [];
+
+        /**
+         * How many actions have yet to complete.
+         */
+        private pendingActions: number = 0;
+
+        /**
+         * Adds a callback to be executed.
+         * 
+         * @param callback   A callback to be executed.
+         */
+        addCallback(callback: Function): void {
+            this.callbacks.push(callback);
+        }
+
+        /**
+         * Marks that an action has started.
+         */
+        markActionStart(): void {
+            this.pendingActions += 1;
+        }
+
+        /**
+         * Marks that an action has completed. If all actions have
+         * completed, the callbacks queue is drained.
+         */
+        markActionCompletion(): void {
+            this.pendingActions -= 1;
+
+            if (this.pendingActions === 0) {
+                this.onCompletion();
+            }
+        }
+
+        /**
+         * Drains the callbacks queue by calling them all.
+         */
+        private onCompletion(): void {
+            this.callbacks.forEach(recipient => recipient());
+            this.callbacks = [];
+        }
+    }
+}
