@@ -2,11 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>TSLint.MSBuild</id>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
     <authors>palantir, joshuakgoldberg</authors>
     <owners>joshuakgoldberg</owners>
-    <licenseUrl>https://github.com/joshuakgoldberg/tslint-msbuild/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/joshuakgoldberg/tslint-msbuild</projectUrl>
+    <licenseUrl>https://github.com/joshuakgoldberg/TSLint.MSBuild/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/joshuakgoldberg/TSLint.MSBuild</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       An MSBuild target for Palantir's wonderful TSLint.

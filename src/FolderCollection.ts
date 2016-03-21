@@ -39,29 +39,34 @@ namespace TSLint.MSBuild {
          * 
          * @param filePath   A path to a file.
          */
-        addFilePath(filePath: string): void {
-            let folder = this.addFolderPath(this.parseParentPathFromPath(filePath));
-
-            folder.addFilePath(filePath);
+        addFilePath(filePath: string): Promise<Folder> {
+            return this
+                .addFolderPath(this.parseParentPathFromPath(filePath))
+                .then(folder => {
+                    folder.addFilePath(filePath);
+                    return folder;
+                });
         }
 
         /**
          * Adds a folder path and checks for its tslint.json.
          * 
          * @param folderPath   A path to a folder.
-         * @returns A representation of that folder.
+         * @returns A Promise for a representation of that folder.
          */
-        addFolderPath(folderPath: string): Folder {
+        addFolderPath(folderPath: string): Promise<Folder> {
             let folder = this.folders[folderPath];
 
-            if (!folder) {
-                this.pendingLoads += 1;
-                (folder = this.folders[folderPath] = new Folder(folderPath))
-                    .loadTSLintConfig()
-                    .then(lintConfig => this.onFolderLoad(lintConfig, folderPath));
+            if (folder) {
+                return new Promise(resolve => resolve(folder));
             }
 
-            return folder;
+            this.pendingLoads += 1;
+            folder = this.folders[folderPath] = new Folder(folderPath);
+
+            return folder
+                .loadTSLintConfig()
+                .then(lintConfig => this.onFolderLoad(lintConfig, folderPath));
         }
 
         /**
@@ -77,10 +82,11 @@ namespace TSLint.MSBuild {
         /**
          * Responds to a folder load.
          * 
-         * @param lintConfig   Whether 
-         * @param folderPath
+         * @param lintConfig   The tslint.json settingsforthefolder, if available. 
+         * @param folderPath   The path to the folder.
+         * @returns A promise for the folder.
          */
-        private onFolderLoad(lintConfig: any, folderPath: string): void {
+        private onFolderLoad(lintConfig: any, folderPath: string): Promise<Folder> {
             if (!lintConfig) {
                 this.checkFolderParent(folderPath);
             }
@@ -91,21 +97,27 @@ namespace TSLint.MSBuild {
                 this.loadingCallbacks.forEach(loadingCallback => loadingCallback());
                 this.loadingCallbacks = [];
             }
+
+            return new Promise(resolve => this.folders[folderPath]);
         }
 
         /**
-         * Checks for a folder's parent's tslint.json, recursively adding parent paths.
+         * Checks for a folder's parent's tslint.json for a folder that doesn'that
+         * have its own, recursively adding parent paths.
          * 
          * @param folderPath   A path to a folder that has been loaded.
          * @todo Check relative to the root solution/package path.
-         * @todo Mark the parent's tslint.json in the child if necessary.
          */
-        private checkFolderParent(folderPath: string): void {
-            if (folderPath.length < 7) {
+        private checkFolderParent(folderPath: string): Promise<void> {
+            if (folderPath.length < 3) {
                 return;
             }
 
-            this.addFolderPath(this.parseParentPathFromPath(folderPath));
+            let folder: Folder = this.folders[folderPath];
+
+            return this
+                .addFolderPath(this.parseParentPathFromPath(folderPath))
+                .then(parentFolder => folder.setTSLintConfig(folder.getTSLintConfig()));
         }
 
         /**

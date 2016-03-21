@@ -65,7 +65,7 @@ namespace TSLint.MSBuild {
          * 
          * @param tsconfig   A new TSLint configuration for this folder.
          */
-        setTsconfig(tsconfig: ITSConfig): any {
+        setTSLintConfig(tsconfig: ITSConfig): any {
             this.tsconfig = tsconfig;
         }
 

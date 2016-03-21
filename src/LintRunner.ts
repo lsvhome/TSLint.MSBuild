@@ -47,7 +47,7 @@ namespace TSLint.MSBuild {
          * 
          * @param filePaths   File paths to add to the folder collection.
          * @returns A promise of the folder collection waiting until all folders
-         *          have determined their tslint.configs.
+         *          have determined their tslint.json.
          */
         addFilePaths(filePaths: string[]): Promise<void> {
             filePaths.forEach(filePath => this.folders.addFilePath(filePath));
@@ -63,14 +63,15 @@ namespace TSLint.MSBuild {
         runTSLint(): Promise<string[]> {
             let folders: Folder[] = this.folders.getFolders(),
                 lintPromises = folders
-                    .map(folder => this.lintFolder(folder))
-                    .filter(promise => !!promise);
+                    .map(folder => {
+                        try {
+                            return this.lintFolder(folder);
+                        } catch (error) {
+                            return this.promiseFailure("folder", folder.getPath(), error);
+                        }
+                    });
 
-            return new Promise<string[]>(resolve => {
-                Promise.all(lintPromises).then(errors => {
-                    resolve([].concat.apply([], errors));
-                });
-            });
+            return Promise.all(lintPromises).then(errors => [].concat.apply([], errors));
         }
 
         /**
@@ -83,19 +84,20 @@ namespace TSLint.MSBuild {
             let lintConfig: ITSLintConfig = folder.getTSLintConfig();
 
             if (!lintConfig) {
-                console.error(`No tslint.config available for '${folder.getPath()}'`);
-                return undefined;
+                throw new Error(`No tslint.json available for '${folder.getPath()}'`);
             }
 
             let filePaths: string[] = folder.getFilePaths(),
-                filePromises: Promise<string[]>[] = filePaths.map(
-                    filePath => this.lintFile(filePath, lintConfig));
+                filePromises: Promise<string[]>[] = filePaths
+                    .map(filePath => {
+                        try {
+                            return this.lintFile(filePath, lintConfig);
+                        } catch (error) {
+                            return this.promiseFailure("file", filePath, error);
+                        }
+                    });
 
-            return new Promise<string[]>(resolve => {
-                Promise.all(filePromises).then(errors => {
-                    resolve([].concat.apply([], errors));
-                });
-            });
+            return Promise.all(filePromises).then(errors => [].concat.apply([], errors));
         }
 
         /**
@@ -122,6 +124,20 @@ namespace TSLint.MSBuild {
                         resolve([`Failed linting '${filePath}': ${error.toString()}`]);
                     }
                 });
+            });
+        }
+
+        /**
+         * Reports a failure message to a parent Promise chain.
+         * 
+         * @param type   The type of item that failed.
+         * @param path   The path to the failed item.
+         * @param error   The thrown error.
+         * @returns A Promise for a failure message.
+         */
+        private promiseFailure(type: "file" | "folder", path: string, error: Error): Promise<string[]> {
+            return new Promise(resolve => {
+                resolve([`Failed linting ${type} '${path}': '${error.message}'`]);
             });
         }
     }
