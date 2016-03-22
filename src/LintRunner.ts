@@ -1,11 +1,8 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
+/// <reference path="../node_modules/tslint/lib/lint.d.ts" />
+/// <reference path="../node_modules/tslint/lib/tslint.d.ts" />
 /// <reference path="Folder.ts" />
 /// <reference path="FolderCollection.ts" />
-
-/**
- * @todo Get tslint definitions
- */
-declare type ITSLintConfig = any;
 
 namespace TSLint.MSBuild {
     "use strict";
@@ -46,14 +43,12 @@ namespace TSLint.MSBuild {
          * Adds a list of file paths to the folder collection.
          * 
          * @param filePaths   File paths to add to the folder collection.
-         * @returns A promise of the folder collection waiting until all folders
-         *          have determined their tslint.json.
-         * @todo Consider refactoring to be more Promise-y (is this anti-pattering?).
+         * @returns A promise of the folder's files loading their tslint.jsons.
          */
-        addFilePaths(filePaths: string[]): Promise<void> {
-            filePaths.forEach(filePath => this.folders.addFilePath(filePath));
-
-            return new Promise<void>(resolve => this.folders.awaitLoading(resolve));
+        addFilePaths(filePaths: string[]): Promise<any> {
+            return Promise.all(
+                filePaths.map(
+                    filePath => this.folders.addFilePath(filePath)));
         }
 
         /**
@@ -82,7 +77,7 @@ namespace TSLint.MSBuild {
          * @returns A promise for TSLint errors, in alphabetic order of file path.
          */
         private lintFolder(folder: Folder): Promise<string[]> {
-            let lintConfig: ITSLintConfig = folder.getTSLintConfig();
+            let lintConfig: any = folder.getTSLintConfig();
 
             if (!lintConfig) {
                 throw new Error(`No tslint.json available for '${folder.getPath()}'`);
@@ -108,7 +103,7 @@ namespace TSLint.MSBuild {
          * @param lintConfig   TSLint settings from a tslint.json.
          * @returns A promise for TSLint errors, in alphabetic order of file path.
          */
-        private lintFile(filePath: string, lintConfig: ITSLintConfig): Promise<string[]> {
+        private lintFile(filePath: string, lintConfig: any): Promise<string[]> {
             return new Promise(resolve => {
                 fs.readFile(filePath, (error, result) => {
                     if (error) {

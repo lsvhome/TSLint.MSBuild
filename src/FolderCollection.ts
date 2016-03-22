@@ -15,11 +15,6 @@ namespace TSLint.MSBuild {
         private folders: { [i: string]: Folder } = {};
 
         /**
-         * Waiter for loading all tslint.json configurations.
-         */
-        private loadWaiter: WaitLock = new WaitLock();
-
-        /**
          * @returns The known added folders, in sorted order.
          */
         getFolders(): Folder[] {
@@ -36,14 +31,9 @@ namespace TSLint.MSBuild {
          * @param filePath   A path to a file.
          */
         addFilePath(filePath: string): Promise<void> {
-            this.loadWaiter.markActionStart();
-
             return this
                 .addFolderPath(this.parseParentPathFromPath(filePath))
-                .then(folder => {
-                    folder.addFilePath(filePath);
-                    this.loadWaiter.markActionCompletion();
-                });
+                .then(folder => folder.addFilePath(filePath));
         }
 
         /**
@@ -66,16 +56,6 @@ namespace TSLint.MSBuild {
                 .then(lintConfig => {
                     return this.onFolderLoad(lintConfig, folderPath);
                 });
-        }
-
-        /**
-         * Waits until all tslint.json files have been loaded, then calls the
-         * provided callback.
-         * 
-         * @param callback   A callback for when loading is complete.
-         */
-        awaitLoading(callback: Function): void {
-            this.loadWaiter.addCallback(callback);
         }
 
         /**
