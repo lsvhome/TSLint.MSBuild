@@ -23,7 +23,7 @@ namespace TSLint.MSBuild {
         /**
          * TSLint configuration for this folder, if it exists.
          */
-        private tsLintConfig: ITSLintConfig;
+        private tsLintConfig: any;
 
         /**
          * Waiter for loading the tslint.json configuration. 
@@ -56,7 +56,7 @@ namespace TSLint.MSBuild {
         /**
          * @returns TSLint configuration for this folder, if it exists.
          */
-        getTSLintConfig(): ITSLintConfig {
+        getTSLintConfig(): any {
             return this.tsLintConfig;
         }
 
@@ -65,7 +65,7 @@ namespace TSLint.MSBuild {
          * 
          * @param tsconfig   A new TSLint configuration for this folder.
          */
-        setTSLintConfig(tsconfig: ITSLintConfig): any {
+        setTSLintConfig(tsconfig: any): any {
             this.tsLintConfig = tsconfig;
         }
 
@@ -83,7 +83,7 @@ namespace TSLint.MSBuild {
          * 
          * @returns A Promise for whether a tsconfig.json was found.
          */
-        loadTSLintConfig(): Promise<ITSLintConfig> {
+        loadTSLintConfig(): Promise<any> {
             this.loadWaiter.markActionStart();
 
             return new Promise(resolve => {
