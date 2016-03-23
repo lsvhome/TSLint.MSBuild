@@ -59,7 +59,7 @@ namespace TSLint.MSBuild {
         }
 
         /**
-         * Responds to a folder load.
+         * Responds to a folder load, checking its parent's tslint.json if necessary.
          * 
          * @param lintConfig   Whether the folder had its own tslint.json. 
          * @param folderPath   The path to the folder.

@@ -5,14 +5,11 @@
     <TypeScriptAllProjects>$(TypeScriptAllProjects);$(MSBuildThisFileFullPath)</TypeScriptAllProjects>
   </PropertyGroup>
 
-  <Target
-    Name="TSLint"
-    Inputs="$(TypeScriptAllProjects);@(TypeScriptCompile)"
-    Outputs="$(OutDir)TSLintFileList.txt">
+  <Target Name="TSLint">
 
     <PropertyGroup>
       <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-5.9.0.exe"))</NodeExe>
-      <TSLintScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\runner.js"))</TSLintScript>
+      <RunnerScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\runner.js"))</RunnerScript>
       <TSLintFileListFilename>$(OutDir)TSLintFileList.txt</TSLintFileListFilename>
     </PropertyGroup>
 
@@ -20,7 +17,7 @@
       <TSLintFile Include="@(TypeScriptCompile)" />
     </ItemGroup>
 
-    <!-- Write lint levels and file names to a text file so the runner can read them -->
+    <!-- Write file names to a text file so the runner can read them -->
     <WriteLinesToFile
       File="$(TSLintFileListFilename)"
       Lines="@(TSLintFile->'%(Identity)')"
@@ -28,7 +25,7 @@
 
     <!-- Run TSLint  -->
     <Exec 
-        Command="&quot;$(NodeExe)&quot; --harmony &quot;$(TSLintScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
+        Command="&quot;$(NodeExe)&quot; --harmony &quot;$(RunnerScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
         IgnoreExitCode="true" />
 
     <!-- Clean up our compiled file list when done -->

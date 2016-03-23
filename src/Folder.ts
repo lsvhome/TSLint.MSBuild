@@ -67,6 +67,7 @@ namespace TSLint.MSBuild {
          */
         setTSLintConfig(tsconfig: any): any {
             this.tsLintConfig = tsconfig;
+            this.loadWaiter.markActionCompletion();
         }
 
         /**
@@ -89,7 +90,6 @@ namespace TSLint.MSBuild {
             return new Promise(resolve => {
                 fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
                     if (error) {
-                        this.loadWaiter.markActionCompletion();
                         resolve(false);
                         return;
                     }
@@ -99,7 +99,6 @@ namespace TSLint.MSBuild {
                         configuration: JSON.parse(result.toString())
                     };
 
-                    this.loadWaiter.markActionCompletion();
                     resolve(true);
                 });
             });
