@@ -94,10 +94,10 @@ namespace TSLint.MSBuild {
                         return;
                     }
 
-                    this.tsLintConfig = {
+                    this.setTSLintConfig({
                         formatter: "json",
                         configuration: JSON.parse(result.toString())
-                    };
+                    });
 
                     resolve(true);
                 });
