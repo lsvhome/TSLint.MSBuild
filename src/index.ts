@@ -45,6 +45,8 @@ namespace TSLint.MSBuild {
             filePaths: string[] = getInputFilesList(summaryFilePath),
             runner = new LintRunner();
 
+        console.log(`Running TSLint on ${filePaths.length} files.`);
+
         runner
             .addFilePaths(filePaths)
             .then(() => runner.runTSLint())

@@ -30,10 +30,8 @@
     <Exec 
         Command="&quot;$(NodeExe)&quot; --harmony &quot;$(TSLintScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
         IgnoreExitCode="true" />
-    
-    <!-- Clean up our compiled file list on "clean" -->
-    <ItemGroup>
-      <FileWrites Include="$(TSLintFileListFilename)" />
-    </ItemGroup>
+
+    <!-- Clean up our compiled file list when done -->
+    <Delete Files="$(TSLintFileListFilename)" />
   </Target>
 </Project>
