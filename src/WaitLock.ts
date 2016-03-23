@@ -14,6 +14,11 @@ namespace TSLint.MSBuild {
          * How many actions have yet to complete.
          */
         private pendingActions: number = 0;
+        
+        /**
+         * Whether this was already triggered.
+         */
+        private completed: boolean;
 
         /**
          * Adds a callback to be executed.
@@ -21,7 +26,11 @@ namespace TSLint.MSBuild {
          * @param callback   A callback to be executed.
          */
         addCallback(callback: Function): void {
-            this.callbacks.push(callback);
+            if (this.completed) {
+                callback();
+            } else {
+                this.callbacks.push(callback);
+            }
         }
 
         /**
@@ -47,6 +56,7 @@ namespace TSLint.MSBuild {
          * Drains the callbacks queue by calling them all.
          */
         private onCompletion(): void {
+            this.completed = true;
             this.callbacks.forEach(recipient => recipient());
             this.callbacks = [];
         }

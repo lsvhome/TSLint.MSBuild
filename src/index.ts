@@ -3,6 +3,8 @@
 /// <reference path="FolderCollection.ts" />
 /// <reference path="LintRunner.ts" />
 
+console.log("Starting TSLint runner.");
+
 namespace TSLint.MSBuild {
     "use strict";
 
@@ -52,7 +54,7 @@ namespace TSLint.MSBuild {
             .then(() => runner.runTSLint())
             .then(lintErrors => {
                 if (lintErrors.length === 0) {
-                    console.log("No errors in TSLint.");
+                    console.log("No errors found by TSLint.");
                     return;
                 }
 

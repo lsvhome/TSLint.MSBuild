@@ -79,16 +79,17 @@ namespace TSLint.MSBuild {
         }
 
         /**
-         * Loads a tsconfig.json from this folder.
+         * Loads a tslint.json from this folder.
          * 
-         * @returns A Promise for whether a tsconfig.json was found.
+         * @returns A Promise for whether a tslint.json was found.
          */
-        loadTSLintConfig(): Promise<any> {
+        loadTSLintConfig(): Promise<boolean> {
             this.loadWaiter.markActionStart();
 
             return new Promise(resolve => {
                 fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
                     if (error) {
+                        this.loadWaiter.markActionCompletion();
                         resolve(false);
                         return;
                     }
