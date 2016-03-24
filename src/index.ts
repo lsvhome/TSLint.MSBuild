@@ -54,7 +54,7 @@ namespace TSLint.MSBuild {
             .then(() => runner.runTSLint())
             .then(lintErrors => {
                 if (lintErrors.length === 0) {
-                    console.log("No errors found by TSLint.");
+                    console.log(`0 errors found in ${filePaths.length} files.`);
                     return;
                 }
 
@@ -63,6 +63,7 @@ namespace TSLint.MSBuild {
                     .join("\n");
 
                 console.error(lintErrorsFormatted);
+                console.log(`${lintErrors.length} errors found in ${filePaths.length} files.`);
             })
             .catch(error => {
                 console.error("Error running TSLint!");

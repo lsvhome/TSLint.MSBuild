@@ -14,7 +14,7 @@ namespace TSLint.MSBuild {
          * How many actions have yet to complete.
          */
         private pendingActions: number = 0;
-        
+
         /**
          * Whether this was already triggered.
          */

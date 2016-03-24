@@ -90,6 +90,7 @@ namespace TSLint.MSBuild {
             return new Promise(resolve => {
                 fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
                     if (error) {
+                        this.setTSLintConfig(undefined);
                         resolve(false);
                         return;
                     }

@@ -53,9 +53,7 @@ namespace TSLint.MSBuild {
 
             return folder
                 .loadTSLintConfig()
-                .then(lintConfig => {
-                    return this.onFolderLoad(lintConfig, folderPath);
-                });
+                .then(lintConfig => this.onFolderLoad(lintConfig, folderPath));
         }
 
         /**
@@ -67,7 +65,7 @@ namespace TSLint.MSBuild {
          */
         private onFolderLoad(foundConfig: boolean, folderPath: string): Promise<Folder> {
             let folder: Folder = this.folders[folderPath];
-            
+
             if (foundConfig) {
                 return new Promise(resolve => resolve(folder));
             }
