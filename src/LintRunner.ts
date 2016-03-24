@@ -46,9 +46,7 @@ namespace TSLint.MSBuild {
          * @returns A promise of the folder's files loading their tslint.jsons.
          */
         addFilePaths(filePaths: string[]): Promise<any> {
-            return Promise.all(
-                filePaths.map(
-                    filePath => this.folders.addFilePath(filePath)));
+            return this.folders.addFilePaths(filePaths);
         }
 
         /**

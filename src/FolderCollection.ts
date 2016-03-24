@@ -26,11 +26,23 @@ namespace TSLint.MSBuild {
         }
 
         /**
+         * Adds a set of file paths, then sanitizies for tslint.jsons.
+         * 
+         * @param filePaths   File paths to add to the collection.
+         * @returns A promise of the file paths loading their tslint.jsons.
+         */
+        addFilePaths(filePaths: string[]): Promise<any> {
+            return Promise
+                .all(filePaths.map(filePath => this.addFilePath(filePath)))
+                .then(() => this.ensureFoldersHaveConfigs());
+        }
+
+        /**
          * Adds a file path and its containing folder path.
          * 
          * @param filePath   A path to a file.
          */
-        addFilePath(filePath: string): Promise<void> {
+        private addFilePath(filePath: string): Promise<void> {
             return this
                 .addFolderPath(this.parseParentPathFromPath(filePath))
                 .then(folder => folder.addFilePath(filePath));
@@ -42,7 +54,7 @@ namespace TSLint.MSBuild {
          * @param folderPath   A path to a folder.
          * @returns A Promise for a representation of that folder.
          */
-        addFolderPath(folderPath: string): Promise<Folder> {
+        private addFolderPath(folderPath: string): Promise<Folder> {
             let folder = this.folders[folderPath];
 
             if (folder) {
@@ -110,6 +122,46 @@ namespace TSLint.MSBuild {
 
                     return parentFolder;
                 });
+        }
+
+        /**
+         * @todo Fix the actual issue, instead of this crappy fix...
+         */
+        private ensureFoldersHaveConfigs(): void {
+            this.getFolders()
+                .filter(folder => !folder.getTSLintConfig())
+                .forEach(folder => this.ensureFolderHasConfig(folder));
+        }
+
+        /**
+         * @todo Fix the actual issue, instead of this crappy fix...
+         */
+        private ensureFolderHasConfig(folder: Folder): void {
+            let currentPath: string = folder.getPath();
+
+            while (true) {
+                let parentPath: string = this.parseParentPathFromPath(currentPath);
+                if (!parentPath || parentPath === currentPath) {
+                    return;
+                }
+
+                let ancestor: Folder = this.folders[parentPath];
+                if (!ancestor || ancestor === folder) {
+                    return;
+                }
+
+                let tsLintConfig = ancestor.getTSLintConfig();
+                if (tsLintConfig) {
+                    folder.setTSLintConfig(tsLintConfig);
+                    return;
+                }
+
+                currentPath = parentPath;
+
+                if (parentPath === ".") {
+                    return;
+                }
+            }
         }
 
         /**
