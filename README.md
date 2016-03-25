@@ -7,7 +7,7 @@ An MSBuild wrapper around Palantir's wonderful [tslint](https://github.com/palan
 Add a link the package's targets file in your project's .csproj file:
 
 ```xml
-<Import Project="..\packages\TSLint.MSBuild.0.0.8\tools\TSLinter.targets" />
+<Import Project="..\packages\TSLint.MSBuild.0.0.16\tools\TSLinter.targets" />
 ```
 
 *If you're unsure of where to put it, directly above the TypeScript targets import is fine.*
