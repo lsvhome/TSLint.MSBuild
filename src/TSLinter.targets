@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <Target Name="TSLint">
-
     <PropertyGroup>
       <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-5.9.0.exe"))</NodeExe>
       <RunnerScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\runner.js"))</RunnerScript>
@@ -18,15 +17,16 @@
     </ItemGroup>
 
     <!-- Write file names to a text file so the runner can read them -->
+    <MakeDir Directories="$(OutDir)" />
     <WriteLinesToFile
       File="$(TSLintFileListFilename)"
       Lines="@(TSLintFile->'%(Identity)')"
       Overwrite="true" />
 
-    <!-- Run TSLint  -->
+    <!-- Run TSLint -->
     <Exec 
-        Command="&quot;$(NodeExe)&quot; --harmony &quot;$(RunnerScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
-        IgnoreExitCode="true" />
+      Command="&quot;$(NodeExe)&quot; --harmony &quot;$(RunnerScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
+      IgnoreExitCode="true" />
 
     <!-- Clean up our compiled file list when done -->
     <Delete Files="$(TSLintFileListFilename)" />

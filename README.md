@@ -28,9 +28,9 @@ Placing a `tslint.json` in a directory will affect that directory's children and
 
 Run the following commands to initialize your environment:
 
-```cmd
-    npm install
-    typings install
+```shell
+npm install
+typings install
 ```
 
 Run `grunt` to build.
