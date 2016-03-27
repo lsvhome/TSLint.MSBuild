@@ -7,8 +7,8 @@
 
   <Target Name="TSLint">
     <PropertyGroup>
-      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\node-5.9.0.exe"))</NodeExe>
-      <RunnerScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\runner.js"))</RunnerScript>
+      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-5.9.0.exe"))</NodeExe>
+      <RunnerScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\runner.js"))</RunnerScript>
       <TSLintFileListFilename>$(OutDir)TSLintFileList.txt</TSLintFileListFilename>
     </PropertyGroup>
 
