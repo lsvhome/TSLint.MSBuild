@@ -10,9 +10,12 @@
     Condition="'@(TypeScriptCompile)' != ''"
     Name="TSLint">
     <PropertyGroup>
-      <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-5.9.0.exe"))</NodeExe>
-      <RunnerScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\runner.js"))</RunnerScript>
-      <TSLintFileListFilename>$(IntermediateOutDir)TSLintFileList.txt</TSLintFileListFilename>
+      <TSLintDeleteFileListFile Condition="'$(TSLintDeleteFileListFile)' == ''">true</TSLintDeleteFileListFile>
+      <TSLintFileListDir Condition="'$(TSLintFileListDir)' == ''">$(IntermediateOutDir)</TSLintFileListDir>
+      <TSLintFileListName Condition="'$(TSLintFileListName)' == ''">TSLintFileList.txt</TSLintFileListName>
+      <TSLintFileListFile>$(TSLintFileListDir)$(TSLintFileListName)</TSLintFileListFile>
+      <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-5.9.0.exe"))</TSLintNodeExe>
+      <TSLintRunnerScript Condition="'$(TSLintRunnerScript)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\runner.js"))</TSLintRunnerScript>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,17 +23,18 @@
     </ItemGroup>
 
     <!-- Write file names to a text file so the runner can read them -->
+    <MakeDir Directories="$(TSLintFileListDir)" />
     <WriteLinesToFile
-      File="$(TSLintFileListFilename)"
+      File="$(TSLintFileListFile)"
       Lines="@(TSLintFile->'%(Identity)')"
       Overwrite="true" />
 
-    <!-- Run TSLint -->
+    <!-- Run TSLint via the runner -->
     <Exec 
-      Command="&quot;$(NodeExe)&quot; --harmony &quot;$(RunnerScript)&quot; &quot;$(TSLintFileListFilename)&quot;"
+      Command="&quot;$(TSLintNodeExe)&quot; --harmony &quot;$(TSLintRunnerScript)&quot; &quot;$(TSLintFileListFile)&quot;"
       IgnoreExitCode="true" />
 
     <!-- Clean up our compiled file list when done -->
-    <Delete Files="$(TSLintFileListFilename)" />
+    <Delete Condition="'$(TSLintDeleteFileListFile)' == 'true'" Files="$(TSLintFileListFile)" />
   </Target>
 </Project>

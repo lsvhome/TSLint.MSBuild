@@ -4,13 +4,20 @@ An MSBuild wrapper around Palantir's wonderful [tslint](https://github.com/palan
 
 ## Usage
 
-Add a link the package's targets file in your project's .csproj file:
+Add this package using the Visual Studio's NuGet Package Manager. 
+It should be automatically added to your project.
 
-```xml
-<Import Project="..\packages\TSLint.MSBuild.0.1.0\build\TSLint.MSBuild.targets" Condition="Exists('..\packages\TSLint.MSBuild.0.1.0\build\TSLint.MSBuild.targets')" />
-```
+### Builds
 
-*If you're unsure of where to put it, directly above the TypeScript targets import is fine.*
+At runtime, the list of .ts files from your build (`TypeScriptCompile`) is output to a temporary .txt file.
+A .js runner file then takes in the path to that file list, scans for `tslint.json` files, and runs TSLint on each .ts file.
+
+The following properties may be overidden via your targets:
+* **TSLintDeleteFileListFile** - Whether to delete the file list file when done. Defaults to `true`.
+* **TSLintFileListDir** - The directory to put the file list in. Defaults to `$(IntermediateOutDir)`.
+* **TSLintFileListName** - The name of the file list file. Defaults to `TSLintFileList.txt`.
+* **TSLintNodeExe**: A node executable to execute the runner script. Defaults to the `tools\node-5.9.0.exe` in the package. 
+* **TSLintRunnerScript** - The .js file to take in `TSLintFileListFile`. Defaults to the `tools\runner.js` in the package.
 
 ### tslint.json
 
