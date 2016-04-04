@@ -5,7 +5,10 @@
     <TypeScriptAllProjects>$(TypeScriptAllProjects);$(MSBuildThisFileFullPath)</TypeScriptAllProjects>
   </PropertyGroup>
 
-  <Target AfterTargets="CompileTypeScript" Name="TSLint">
+  <Target 
+    AfterTargets="CompileTypeScript"
+    Condition="'@(TypeScriptCompile)' != ''"
+    Name="TSLint">
     <PropertyGroup>
       <NodeExe>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-5.9.0.exe"))</NodeExe>
       <RunnerScript>$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\runner.js"))</RunnerScript>
@@ -17,7 +20,6 @@
     </ItemGroup>
 
     <!-- Write file names to a text file so the runner can read them -->
-    <MakeDir Directories="$(OutDir)" />
     <WriteLinesToFile
       File="$(TSLintFileListFilename)"
       Lines="@(TSLintFile->'%(Identity)')"
