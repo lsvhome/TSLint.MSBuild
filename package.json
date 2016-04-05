@@ -1,11 +1,11 @@
 {
   "name": "tslint-msbuild",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": " An MSBuild target for Palantir's wonderful TSLint.",
   "author": "Joshua K Goldberg",
   "license": "MIT",
   "repository": {
-      "url": "https://github.com/JoshuaKGoldberg/tslint-msbuild-nuget"
+      "url": "https://github.com/JoshuaKGoldberg/TSLint.MSBuild"
   },
   "dependencies": {
     "tslint": "^3.5.0",
