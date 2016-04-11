@@ -1,6 +1,4 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
-/// <reference path="../node_modules/tslint/lib/lint.d.ts" />
-/// <reference path="../node_modules/tslint/lib/tslint.d.ts" />
 /// <reference path="Folder.ts" />
 /// <reference path="FolderCollection.ts" />
 
@@ -35,9 +33,24 @@ namespace TSLint.MSBuild {
      */
     export class LintRunner {
         /**
+         * The root directory to look at files under.
+         */
+        private rootDirectory: string;
+
+        /**
          * Folders generated from individual file paths.
          */
-        private folders: FolderCollection = new FolderCollection();
+        private folders: FolderCollection;
+
+        /**
+         * Initializes a new instance of the LintRunner class.
+         * 
+         * @param rootDirectory   The root directory to look at files under.
+         */
+        constructor(rootDirectory: string) {
+            this.rootDirectory = rootDirectory;
+            this.folders = new FolderCollection(rootDirectory);
+        }
 
         /**
          * Adds a list of file paths to the folder collection.
@@ -45,8 +58,9 @@ namespace TSLint.MSBuild {
          * @param filePaths   File paths to add to the folder collection.
          * @returns A promise of the folder's files loading their tslint.jsons.
          */
-        addFilePaths(filePaths: string[]): Promise<any> {
-            return this.folders.addFilePaths(filePaths);
+        public addFilePaths(filePaths: string[]): Promise<any> {
+            return this.folders.addFilePaths(
+                filePaths.map((filePath: string): string => fs.realpathSync(filePath)));
         }
 
         /**
@@ -54,7 +68,7 @@ namespace TSLint.MSBuild {
          * 
          * @returns A promise for TSLint errors, in alphabetic order of file path.
          */
-        runTSLint(): Promise<string[]> {
+        public runTSLint(): Promise<string[]> {
             let folders: Folder[] = this.folders.getFolders(),
                 lintPromises = folders
                     .map(folder => {

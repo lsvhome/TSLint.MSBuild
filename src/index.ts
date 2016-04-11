@@ -43,11 +43,13 @@ namespace TSLint.MSBuild {
     }
 
     (() => {
-        let summaryFilePath: string = process.argv[2],
+        let rootDirectory: string = process.argv[2],
+            summaryFilePath: string = process.argv[3],
             filePaths: string[] = getInputFilesList(summaryFilePath),
-            runner = new LintRunner();
+            runner = new LintRunner(rootDirectory);
 
         console.log(`Running TSLint on ${filePaths.length} files.`);
+        console.log(`Root directory is '${rootDirectory}'.`);
 
         runner
             .addFilePaths(filePaths)

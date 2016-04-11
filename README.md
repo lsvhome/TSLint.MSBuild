@@ -18,6 +18,7 @@ The following properties may be overidden via your targets:
 * **TSLintFileListName** - The name of the file list file. Defaults to `TSLintFileList.txt`.
 * **TSLintNodeExe**: A node executable to execute the runner script. Defaults to the `tools\node-5.9.0.exe` in the package. 
 * **TSLintRunnerScript** - The .js file to take in `TSLintFileListFile`. Defaults to the `tools\runner.js` in the package.
+* **TSLintFilesRootDir** - A root directory to work within. Defaults to `$(MSBuildProjectDirectory)`.
 
 ### tslint.json
 

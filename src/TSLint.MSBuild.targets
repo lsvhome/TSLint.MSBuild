@@ -16,6 +16,7 @@
       <TSLintFileListFile>$(TSLintFileListDir)$(TSLintFileListName)</TSLintFileListFile>
       <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-5.9.0.exe"))</TSLintNodeExe>
       <TSLintRunnerScript Condition="'$(TSLintRunnerScript)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\runner.js"))</TSLintRunnerScript>
+      <TSLintFilesRootDir Condition="'$(TSLintFilesRootDir)' == ''">$(MSBuildProjectDirectory)</TSLintFilesRootDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,7 +32,7 @@
 
     <!-- Run TSLint via the runner -->
     <Exec 
-      Command="&quot;$(TSLintNodeExe)&quot; --harmony &quot;$(TSLintRunnerScript)&quot; &quot;$(TSLintFileListFile)&quot;"
+      Command="&quot;$(TSLintNodeExe)&quot; --harmony &quot;$(TSLintRunnerScript)&quot; &quot;$(TSLintFilesRootDir)&quot; &quot;$(TSLintFileListFile)&quot;"
       IgnoreExitCode="true" />
 
     <!-- Clean up our compiled file list when done -->

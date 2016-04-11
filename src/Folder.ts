@@ -1,4 +1,5 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
+/// <reference path="WaitLock.ts" />
 
 namespace TSLint.MSBuild {
     "use strict";
@@ -42,21 +43,21 @@ namespace TSLint.MSBuild {
         /**
          * @returns The path to this folder.
          */
-        getPath(): string {
+        public getPath(): string {
            return this.path;
         }
 
         /**
          * @returns Files registered under this folder.
          */
-        getFilePaths(): string[] {
+        public getFilePaths(): string[] {
             return this.filePaths;
         }
 
         /**
          * @returns TSLint configuration for this folder, if it exists.
          */
-        getTSLintConfig(): any {
+        public getTSLintConfig(): any {
             return this.tsLintConfig;
         }
 
@@ -65,7 +66,7 @@ namespace TSLint.MSBuild {
          * 
          * @param tsconfig   A new TSLint configuration for this folder.
          */
-        setTSLintConfig(tsconfig: any): any {
+        public setTSLintConfig(tsconfig: any): any {
             this.tsLintConfig = tsconfig;
             this.loadWaiter.markActionCompletion();
         }
@@ -75,7 +76,7 @@ namespace TSLint.MSBuild {
          * 
          * @param filePath   A path to a TypeScript file.
          */
-        addFilePath(filePath: string): void {
+        public addFilePath(filePath: string): void {
             this.filePaths.push(filePath);
         }
 
@@ -84,7 +85,7 @@ namespace TSLint.MSBuild {
          * 
          * @returns A Promise for whether a tslint.json was found.
          */
-        loadTSLintConfig(): Promise<boolean> {
+        public loadTSLintConfig(): Promise<boolean> {
             this.loadWaiter.markActionStart();
 
             return new Promise(resolve => {
@@ -110,7 +111,7 @@ namespace TSLint.MSBuild {
          * 
          * @returns A Promise for this folder to load its tsconfig.json.
          */
-        waitForTSLint(): Promise<Folder> {
+        public waitForTSLint(): Promise<Folder> {
             return new Promise(resolve => {
                 return this.loadWaiter.addCallback(() => resolve(this));
             });

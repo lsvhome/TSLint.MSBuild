@@ -1,16 +1,11 @@
 {
   "name": "tslint-msbuild",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": " An MSBuild target for Palantir's wonderful TSLint.",
   "author": "Joshua K Goldberg",
   "license": "MIT",
   "repository": {
-      "url": "https://github.com/JoshuaKGoldberg/TSLint.MSBuild"
-  },
-  "dependencies": {
-    "tslint": "^3.5.0",
-    "typescript": "^1.8.7",
-    "yargs": "^4.2.0"
+    "url": "https://github.com/JoshuaKGoldberg/TSLint.MSBuild"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
@@ -19,8 +14,10 @@
     "grunt-exec": "^0.4.6",
     "grunt-npm-install": "^0.3.0",
     "grunt-nuget": "^0.1.5",
-    "grunt-ts": "^5.3.2",
+    "grunt-ts": "^5.4.0",
     "grunt-tslint": "^3.0.3",
+    "tslint": "^3.7.1",
+    "typescript": "^1.8.9",
     "typings": "^0.7.3"
   }
 }

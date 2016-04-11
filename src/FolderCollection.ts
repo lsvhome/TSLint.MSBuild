@@ -1,6 +1,5 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
 /// <reference path="Folder.ts" />
-/// <reference path="WaitLock.ts" />
 
 namespace TSLint.MSBuild {
     "use strict";
@@ -10,14 +9,28 @@ namespace TSLint.MSBuild {
      */
     export class FolderCollection {
         /**
+         * The root directory to look at files under.
+         */
+        private rootDirectory: string;
+
+        /**
          * Known folders that have been added.
          */
         private folders: { [i: string]: Folder } = {};
 
         /**
+         * Initializes a new instance of the LintRunner class.
+         * 
+         * @param rootDirectory   The root directory to look at files under.
+         */
+        constructor(rootDirectory: string) {
+            this.rootDirectory = rootDirectory;
+        }
+
+        /**
          * @returns The known added folders, in sorted order.
          */
-        getFolders(): Folder[] {
+        public getFolders(): Folder[] {
             let folderPaths: string[] = Object.keys(this.folders);
 
             folderPaths.sort();
@@ -31,7 +44,7 @@ namespace TSLint.MSBuild {
          * @param filePaths   File paths to add to the collection.
          * @returns A promise of the file paths loading their tslint.jsons.
          */
-        addFilePaths(filePaths: string[]): Promise<any> {
+        public addFilePaths(filePaths: string[]): Promise<any> {
             return Promise
                 .all(filePaths.map(filePath => this.addFilePath(filePath)))
                 .then(() => this.ensureFoldersHaveConfigs());
@@ -99,7 +112,7 @@ namespace TSLint.MSBuild {
          * @todo Should this reject instead of resolve with undefined?
          */
         private checkFolderParent(folderPath: string): Promise<Folder> {
-            if (folderPath.length === 0) {
+            if (folderPath.length < this.rootDirectory.length) {
                 return new Promise(resolve => resolve(undefined));
             }
 
