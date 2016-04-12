@@ -12,7 +12,7 @@
     <PropertyGroup>
       <TSLintDeleteFileListFile Condition="'$(TSLintDeleteFileListFile)' == ''">true</TSLintDeleteFileListFile>
       <TSLintFileListDir Condition="'$(TSLintFileListDir)' == ''">$(IntermediateOutDir)</TSLintFileListDir>
-      <TSLintFileListName Condition="'$(TSLintFileListName)' == ''">TSLintFileList.txt</TSLintFileListName>
+      <TSLintFileListName Condition="'$(TSLintFileListName)' == ''">TSLintFileList-$(MSBuildProjectName).txt</TSLintFileListName>
       <TSLintFileListFile>$(TSLintFileListDir)$(TSLintFileListName)</TSLintFileListFile>
       <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-5.9.0.exe"))</TSLintNodeExe>
       <TSLintRunnerScript Condition="'$(TSLintRunnerScript)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\runner.js"))</TSLintRunnerScript>
