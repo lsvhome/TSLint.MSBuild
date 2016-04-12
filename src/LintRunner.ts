@@ -1,32 +1,12 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
 /// <reference path="Folder.ts" />
 /// <reference path="FolderCollection.ts" />
+/// <reference path="TSLintSearcher.ts" />
 
 namespace TSLint.MSBuild {
     "use strict";
 
-    /**
-     * The default path prefix to require TSLint under.
-     */
-    const tsLintPathPrefixDefault: string = "../../../packages";
-
-    /**
-     * The ending of the path to require TSLint under.
-     */
-    const tsLintPathSuffix: string = "tslint.3.5.2/tools/node_modules/tslint";
-
-    /**
-     * The path to require for TSLint under.
-     */
-    const tsLintPath: string = ((): string => {
-        let path = require("path"),
-            nugetLocation: string = process.env.NugetMachineInstallRoot;
-
-        return path.join(nugetLocation || tsLintPathPrefixDefault, tsLintPathSuffix);
-    })();
-
-    let fs = require("fs"),
-        TSLint = require(tsLintPath);
+    let fs = require("fs");
 
     /**
      * Driver for running TSLint on a number of files.
@@ -43,6 +23,16 @@ namespace TSLint.MSBuild {
         private folders: FolderCollection;
 
         /**
+         * A utility to find the TSLint NuGet package location.
+         */
+        private tsLintSearcher: TSLintSearcher;
+
+        /**
+         * The TSLint module to be required.
+         */
+        private tsLint: any;
+
+        /**
          * Initializes a new instance of the LintRunner class.
          * 
          * @param rootDirectory   The root directory to look at files under.
@@ -50,6 +40,8 @@ namespace TSLint.MSBuild {
         constructor(rootDirectory: string) {
             this.rootDirectory = rootDirectory;
             this.folders = new FolderCollection(rootDirectory);
+            this.tsLintSearcher = new TSLintSearcher();
+            this.tsLint = require(this.tsLintSearcher.resolve());
         }
 
         /**
@@ -124,7 +116,7 @@ namespace TSLint.MSBuild {
                     }
 
                     try {
-                        let linter = new TSLint(filePath, result.toString(), lintConfig),
+                        let linter = new this.tsLint(filePath, result.toString(), lintConfig),
                             errorSummary = linter.lint();
 
                         resolve(JSON.parse(errorSummary.output));
