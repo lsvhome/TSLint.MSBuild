@@ -34,8 +34,11 @@ namespace TSLint.MSBuild {
          * Initializes a new instance of the TSLintSearcher class.
          */
         constructor() {
-            this.resolvePackagesDirectory();
-            this.resolveTSLintPackageDirectory();
+            this.packagesDirectory = this.resolvePackagesDirectory();
+            console.log(`Resolved packages directory to '${this.packagesDirectory}'.`);
+
+            this.tsLintPackage = this.resolveTSLintPackageDirectory();
+            console.log(`Resolved TSLint package directory to '${this.tsLintPackage}'.`);
         }
 
         /**
@@ -53,16 +56,17 @@ namespace TSLint.MSBuild {
         }
 
         /**
-         * Determines the parent project's NuGet packages folder.
+         * @returns The parent project's NuGet packages folder.
          */
-        private resolvePackagesDirectory(): void {
+        private resolvePackagesDirectory(): string {
             console.log("Resolving packages directory...");
 
-            let currentPath = path.resolve(__dirname, "../..");
+            let originalPath: string = path.resolve(__dirname, "../.."),
+                currentPath: string = originalPath;
 
             while (true) {
-                if (currentPath.length < 1) {
-                    throw new Error("Could not find packages directory.");
+                if (currentPath.length < 3) {
+                    throw new Error("Too far up to find packages directory.");
                 }
 
                 console.log(`\tChecking '${currentPath}'...`);
@@ -73,17 +77,22 @@ namespace TSLint.MSBuild {
                     break;
                 }
 
-                currentPath = path.resolve(currentPath, "..");
+                let nextPath = path.resolve(currentPath, "..");
+                if (currentPath === nextPath) {
+                    console.log("Could not find \"packages\" directory. Defaulting to current directory.");
+                    return originalPath;
+                }
+
+                currentPath = nextPath;
             }
 
-            this.packagesDirectory = currentPath;
-            console.log(`Resolved to '${this.packagesDirectory}'.`);
+            return currentPath;
         }
 
         /**
-         * Determines highest version of the TSLint NuGet package.
+         * @returns The highest version of the TSLint NuGet package.
          */
-        private resolveTSLintPackageDirectory(): void {
+        private resolveTSLintPackageDirectory(): string {
             console.log("Resolving TSLint package directory...");
 
             let lintVersions: number[][] = fs.readdirSync(this.packagesDirectory)
@@ -97,8 +106,7 @@ namespace TSLint.MSBuild {
             lintVersions.sort(TSLintSearcher.versionSorter);
             console.log(`\tFound TSLint versions [${this.joinLintVersions(lintVersions)}].`);
 
-            this.tsLintPackage = `tslint.${lintVersions[0].join(".")}`;
-            console.log(`Resolved to '${this.tsLintPackage}'.`);
+            return `tslint.${lintVersions[0].join(".")}`;
         }
 
         /**

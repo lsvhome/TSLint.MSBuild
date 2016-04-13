@@ -121,7 +121,7 @@ namespace TSLint.MSBuild {
 
                         resolve(JSON.parse(errorSummary.output));
                     } catch (error) {
-                        resolve([`Failed linting '${filePath}': ${error.toString()}`]);
+                        resolve([`Could not lint '${filePath}': ${error.toString()}`]);
                     }
                 });
             });
@@ -137,7 +137,7 @@ namespace TSLint.MSBuild {
          */
         private promiseFailure(type: "file" | "folder", path: string, error: Error): Promise<string[]> {
             return new Promise(resolve => {
-                resolve([`Failed linting ${type} '${path}': '${error.message}'`]);
+                resolve([`Could not lint ${type} '${path}': '${error.message}'`]);
             });
         }
     }
