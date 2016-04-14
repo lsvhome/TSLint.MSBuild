@@ -13,6 +13,13 @@ namespace TSLint.MSBuild {
      */
     const pathSuffix: string = "tools/node_modules/tslint";
 
+    /**
+     * Known names of environment variables that build systems may put packages in.
+     */
+    const possibleEnvironmentVariables: string[] = [
+        "NugetMachineInstallRoot"
+    ];
+
     let fs = require("fs"),
         path = require("path");
 
@@ -61,12 +68,78 @@ namespace TSLint.MSBuild {
         private resolvePackagesDirectory(): string {
             console.log("Resolving packages directory...");
 
-            let originalPath: string = path.resolve(__dirname, "../.."),
-                currentPath: string = originalPath;
+            let result: string = (
+                this.resolvePackagesDirectoryFromSibling()
+                || this.resolvePackagesDirectoryFromEnvironment()
+                || this.resolvePackagesDirectoryFromParent());
+
+            if (!result) {
+                throw new Error("Couldn't find TSLint packages directory!");
+            }
+
+            return result;
+        }
+
+        /**
+         * Attempts to find the NuGet package directory as a sibling of the current
+         * directory.
+         * 
+         * @returns The NuGet package directory path, if found.
+         */
+        private resolvePackagesDirectoryFromSibling(): string {
+            console.log("Resolving packages directory from siblings...");
+
+            let currentPath: string = path.resolve(__dirname, "../..");
+            if (this.doesFolderContainTSLint(currentPath)) {
+                return currentPath;
+            }
+
+            console.log(`No TSLint found in '${currentPath}'.`);
+            return undefined;
+        }
+
+        /**
+         * Attempts to find the NuGet package directory based on known environment
+         * variables.
+         * 
+         * @returns The NuGet package directory path, if found.
+         */
+        private resolvePackagesDirectoryFromEnvironment(): string {
+            console.log("Resolving packages directory from environment...");
+
+            for (let i: number = 0; i < possibleEnvironmentVariables.length; i += 1) {
+                let name: string = possibleEnvironmentVariables[i];
+                if (!process.env[name]) {
+                    continue;
+                }
+
+                let value: string = process.env[name];
+                let currentPath: string = path.resolve(value);
+                console.log(`Checking environment variable path '${name}' (value '${value}' resolved to '${currentPath}')...`);
+
+                if (this.doesFolderContainTSLint(currentPath)) {
+                    return currentPath;
+                }
+            }
+
+            console.log("No matching environment variable paths found.");
+        }
+
+        /**
+         * Attempts to find the NuGet package directory as a parent of the current
+         * directory.
+         * 
+         * @returns The NuGet package directory path, if found.
+         */
+        private resolvePackagesDirectoryFromParent(): string {
+            console.log("Resolving packages directory from parent...");
+
+            let currentPath: string = path.resolve(__dirname, "..");
 
             while (true) {
                 if (currentPath.length < 3) {
-                    throw new Error("Too far up to find packages directory.");
+                    console.log("Too far up to find packages directory.");
+                    return;
                 }
 
                 console.log(`\tChecking '${currentPath}'...`);
@@ -79,8 +152,8 @@ namespace TSLint.MSBuild {
 
                 let nextPath = path.resolve(currentPath, "..");
                 if (currentPath === nextPath) {
-                    console.log("Could not find \"packages\" directory. Defaulting to current directory.");
-                    return originalPath;
+                    console.log("Could not find \"packages\" directory from parents.");
+                    return undefined;
                 }
 
                 currentPath = nextPath;
@@ -90,13 +163,16 @@ namespace TSLint.MSBuild {
         }
 
         /**
+         * Determines the highest version of the TSLint NuGet package in the 
+         * previously determined packages directory.
+         * 
          * @returns The highest version of the TSLint NuGet package.
          */
         private resolveTSLintPackageDirectory(): string {
             console.log("Resolving TSLint package directory...");
 
             let lintVersions: number[][] = fs.readdirSync(this.packagesDirectory)
-                .filter(folderName => /tslint.\b\d+.\d+.\d+\b/.test(folderName))
+                .filter(folderName => this.folderIsTSLint(folderName))
                 .map(folderName => this.parseTSLintPackageVersionFromName(folderName));
 
             if (lintVersions.length === 0) {
@@ -127,6 +203,34 @@ namespace TSLint.MSBuild {
          */
         private joinLintVersions(lintVersions: number[][]): string {
             return lintVersions.map(lintVersion => lintVersion.join(".")).join(",");
+        }
+
+        /**
+         * Determines if a folder's children contain a TSLint directory.
+         * 
+         * @param folderPath   A path to a folder.
+         * @returns Whether the folder contains a TSLint child.
+         */
+        private doesFolderContainTSLint(folderPath: string) {
+            let childNames: string[] = fs.readdirSync(folderPath);
+
+            for (let i: number = 0; i < childNames.length; i += 1) {
+                if (this.folderIsTSLint(childNames[i])) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /**
+         * Determines whether a folder contains the TSLint NuGet package.
+         * 
+         * @param folderName   A folder to check.
+         * @returns Whether the folderName is a match for TSLint.
+         */
+        private folderIsTSLint(folderName: string): boolean {
+            return /tslint.\b\d+.\d+.\d+\b/.test(folderName);
         }
 
         /**
