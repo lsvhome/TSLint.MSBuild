@@ -35,8 +35,9 @@ namespace TSLint.MSBuild {
          * Initializes a new instance of the Folder class.
          * 
          * @param path   The path to this folder.
+         * @param configLoader  The configuration loader.
          */
-        constructor(path: string) {
+        constructor(path: string, private configLoader: ConfigLoader) {
             this.path = path;
         }
 
@@ -87,7 +88,7 @@ namespace TSLint.MSBuild {
          */
         public loadTSLintConfig(): Promise<boolean> {
             this.loadWaiter.markActionStart();
-            return ConfigLoader
+            return this.configLoader
                 .readJSONConfig(path.join(this.path, "tslint.json"))
                 .then((config) => {
                     this.setTSLintConfig({
