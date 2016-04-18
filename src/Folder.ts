@@ -98,7 +98,6 @@ namespace TSLint.MSBuild {
                 })
                 .catch((error) => {
                     this.setTSLintConfig(undefined);
-                    return false;
                 });
         }
 
