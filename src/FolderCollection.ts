@@ -22,8 +22,9 @@ namespace TSLint.MSBuild {
          * Initializes a new instance of the LintRunner class.
          * 
          * @param rootDirectory   The root directory to look at files under.
+         * @param ConfigLoader    The configuration loader.
          */
-        constructor(rootDirectory: string) {
+        constructor(rootDirectory: string, private configLoader: ConfigLoader) {
             this.rootDirectory = rootDirectory;
         }
 
@@ -74,7 +75,7 @@ namespace TSLint.MSBuild {
                 return new Promise(resolve => resolve(folder));
             }
 
-            folder = this.folders[folderPath] = new Folder(folderPath);
+            folder = this.folders[folderPath] = new Folder(folderPath, this.configLoader);
 
             return folder
                 .loadTSLintConfig()

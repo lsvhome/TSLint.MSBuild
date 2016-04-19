@@ -1,12 +1,12 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
 /// <reference path="WaitLock.ts" />
+/// <reference path="./ConfigLoader.ts" />
 
 namespace TSLint.MSBuild {
     "use strict";
 
     let fs = require("fs"),
         path = require("path");
-
     /**
      * A representation of a directory with files and optionally a tsconfig.json.
      */
@@ -35,8 +35,9 @@ namespace TSLint.MSBuild {
          * Initializes a new instance of the Folder class.
          * 
          * @param path   The path to this folder.
+         * @param configLoader  The configuration loader.
          */
-        constructor(path: string) {
+        constructor(path: string, private configLoader: ConfigLoader) {
             this.path = path;
         }
 
@@ -44,7 +45,7 @@ namespace TSLint.MSBuild {
          * @returns The path to this folder.
          */
         public getPath(): string {
-           return this.path;
+            return this.path;
         }
 
         /**
@@ -87,23 +88,18 @@ namespace TSLint.MSBuild {
          */
         public loadTSLintConfig(): Promise<boolean> {
             this.loadWaiter.markActionStart();
-
-            return new Promise(resolve => {
-                fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
-                    if (error) {
-                        this.setTSLintConfig(undefined);
-                        resolve(false);
-                        return;
-                    }
-
+            return this.configLoader
+                .readJSONConfig(path.join(this.path, "tslint.json"))
+                .then((config) => {
                     this.setTSLintConfig({
                         formatter: "json",
-                        configuration: JSON.parse(result.toString())
+                        configuration: config
                     });
-
-                    resolve(true);
+                    return true;
+                })
+                .catch((error) => {
+                    this.setTSLintConfig(undefined);
                 });
-            });
         }
 
         /**

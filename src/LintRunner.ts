@@ -36,10 +36,11 @@ namespace TSLint.MSBuild {
          * Initializes a new instance of the LintRunner class.
          * 
          * @param rootDirectory   The root directory to look at files under.
+         * @param configLoader  The configuration loader.
          */
-        constructor(rootDirectory: string) {
+        constructor(rootDirectory: string, private configLoader: ConfigLoader) {
             this.rootDirectory = rootDirectory;
-            this.folders = new FolderCollection(rootDirectory);
+            this.folders = new FolderCollection(rootDirectory, this.configLoader);
             this.tsLintSearcher = new TSLintSearcher();
             this.tsLint = require(this.tsLintSearcher.resolve());
         }
