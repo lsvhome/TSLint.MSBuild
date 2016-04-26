@@ -1,4 +1,5 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
+/// <reference path="ArgumentsCollection.ts" />
 /// <reference path="Folder.ts" />
 /// <reference path="FolderCollection.ts" />
 /// <reference path="TSLintSearcher.ts" />
@@ -12,11 +13,6 @@ namespace TSLint.MSBuild {
      * Driver for running TSLint on a number of files.
      */
     export class LintRunner {
-        /**
-         * The root directory to look at files under.
-         */
-        private rootDirectory: string;
-
         /**
          * Folders generated from individual file paths.
          */
@@ -35,11 +31,10 @@ namespace TSLint.MSBuild {
         /**
          * Initializes a new instance of the LintRunner class.
          * 
-         * @param rootDirectory   The root directory to look at files under.
+         * @param argumentsCollection   Parsed arguments to the program.
          */
-        constructor(rootDirectory: string) {
-            this.rootDirectory = rootDirectory;
-            this.folders = new FolderCollection(rootDirectory);
+        constructor(argumentsCollection: ArgumentsCollection) {
+            this.folders = new FolderCollection(argumentsCollection);
             this.tsLintSearcher = new TSLintSearcher();
             this.tsLint = require(this.tsLintSearcher.resolve());
         }

@@ -1,4 +1,5 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
+/// <reference path="ArgumentsCollection.ts" />
 /// <reference path="WaitLock.ts" />
 
 namespace TSLint.MSBuild {
@@ -44,7 +45,7 @@ namespace TSLint.MSBuild {
          * @returns The path to this folder.
          */
         public getPath(): string {
-           return this.path;
+            return this.path;
         }
 
         /**
@@ -98,9 +99,8 @@ namespace TSLint.MSBuild {
 
                     this.setTSLintConfig({
                         formatter: "json",
-                        configuration: JSON.parse(result.toString())
+                        configuration: this.sanitizeFileContents(result)
                     });
-
                     resolve(true);
                 });
             });
@@ -115,6 +115,16 @@ namespace TSLint.MSBuild {
             return new Promise(resolve => {
                 return this.loadWaiter.addCallback(() => resolve(this));
             });
+        }
+
+        /**
+         * Sanitizes a file's contents in case of an odd BOM.
+         * 
+         * @param raw   Raw contents of a file.
+         * @returns The BOM-sanitized equivalent text.
+         */
+        private sanitizeFileContents(raw: any): string {
+            return JSON.parse(raw.toString().replace(/^\uFEFF/, ""));
         }
     }
 }

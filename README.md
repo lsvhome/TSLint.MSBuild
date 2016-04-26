@@ -14,11 +14,13 @@ A .js runner file then takes in the path to that file list, scans for `tslint.js
 
 The following properties may be overidden via your targets:
 * **TSLintDeleteFileListFile** - Whether to delete the file list file when done. Defaults to `true`.
+* **TSLintExclude** - A JavaScript RegExp literal of matching file names to exclude. Defaults to `"^$"` (none).
+* **TSLintFilesRootDir** - A root directory to work within. Defaults to `$(MSBuildProjectDirectory)`.
 * **TSLintFileListDir** - The directory to put the file list in. Defaults to `$(IntermediateOutDir)`.
 * **TSLintFileListName** - The name of the file list file. Defaults to `TSLintFileList.txt-$(MSBuildProjectName)`.
 * **TSLintNodeExe**: A node executable to execute the runner script. Defaults to the `tools\node-5.9.0.exe` in the package. 
 * **TSLintRunnerScript** - The .js file to take in `TSLintFileListFile`. Defaults to the `tools\runner.js` in the package.
-* **TSLintFilesRootDir** - A root directory to work within. Defaults to `$(MSBuildProjectDirectory)`.
+
 
 ### tslint.json
 
