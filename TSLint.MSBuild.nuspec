@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/joshuakgoldberg/TSLint.MSBuild</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      An MSBuild target for Palantir's wonderful TSLint.
+      An MSBuild target for linting TypeScript code using TSLint.
     </description>
     <tags>tslint, msbuild</tags>
     <dependencies>

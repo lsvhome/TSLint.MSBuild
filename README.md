@@ -1,6 +1,6 @@
 # TSLint for MSBuild
 
-An MSBuild wrapper around Palantir's wonderful [tslint](https://github.com/palantir/tslint). Get it at [nuget.org](https://www.nuget.org/packages/TSLint.MSBuild/).
+An MSBuild target for linting TypeScript code using [TSLint](https://github.com/palantir/tslint). Get it at [nuget.org](https://www.nuget.org/packages/TSLint.MSBuild/).
 
 ## Usage
 
