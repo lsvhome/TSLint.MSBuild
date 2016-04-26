@@ -1,12 +1,13 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
+/// <reference path="ArgumentsCollection.ts" />
 /// <reference path="WaitLock.ts" />
-/// <reference path="./ConfigLoader.ts" />
 
 namespace TSLint.MSBuild {
     "use strict";
 
     let fs = require("fs"),
         path = require("path");
+
     /**
      * A representation of a directory with files and optionally a tsconfig.json.
      */
@@ -35,9 +36,8 @@ namespace TSLint.MSBuild {
          * Initializes a new instance of the Folder class.
          * 
          * @param path   The path to this folder.
-         * @param configLoader  The configuration loader.
          */
-        constructor(path: string, private configLoader: ConfigLoader) {
+        constructor(path: string) {
             this.path = path;
         }
 
@@ -88,18 +88,22 @@ namespace TSLint.MSBuild {
          */
         public loadTSLintConfig(): Promise<boolean> {
             this.loadWaiter.markActionStart();
-            return this.configLoader
-                .readJSONConfig(path.join(this.path, "tslint.json"))
-                .then((config) => {
+
+            return new Promise(resolve => {
+                fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
+                    if (error) {
+                        this.setTSLintConfig(undefined);
+                        resolve(false);
+                        return;
+                    }
+
                     this.setTSLintConfig({
                         formatter: "json",
-                        configuration: config
+                        configuration: this.sanitizeFileContents(result)
                     });
-                    return true;
-                })
-                .catch((error) => {
-                    this.setTSLintConfig(undefined);
+                    resolve(true);
                 });
+            });
         }
 
         /**
@@ -111,6 +115,16 @@ namespace TSLint.MSBuild {
             return new Promise(resolve => {
                 return this.loadWaiter.addCallback(() => resolve(this));
             });
+        }
+
+        /**
+         * Sanitizes a file's contents in case of an odd BOM.
+         * 
+         * @param raw   Raw contents of a file.
+         * @returns The BOM-sanitized equivalent text.
+         */
+        private sanitizeFileContents(raw: any): string {
+            return JSON.parse(raw.toString().replace(/^\uFEFF/, ""));
         }
     }
 }

@@ -1,4 +1,5 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
+/// <reference path="ArgumentsCollection.ts" />
 /// <reference path="Folder.ts" />
 
 namespace TSLint.MSBuild {
@@ -9,9 +10,9 @@ namespace TSLint.MSBuild {
      */
     export class FolderCollection {
         /**
-         * The root directory to look at files under.
+         * Parsed arguments to the program.
          */
-        private rootDirectory: string;
+        private argumentsCollection: ArgumentsCollection;
 
         /**
          * Known folders that have been added.
@@ -21,11 +22,10 @@ namespace TSLint.MSBuild {
         /**
          * Initializes a new instance of the LintRunner class.
          * 
-         * @param rootDirectory   The root directory to look at files under.
-         * @param ConfigLoader    The configuration loader.
+         * @param argumentsCollection   Parsed arguments to the program.
          */
-        constructor(rootDirectory: string, private configLoader: ConfigLoader) {
-            this.rootDirectory = rootDirectory;
+        constructor(argumentsCollection: ArgumentsCollection) {
+            this.argumentsCollection = argumentsCollection;
         }
 
         /**
@@ -55,6 +55,7 @@ namespace TSLint.MSBuild {
          * Adds a file path and its containing folder path.
          * 
          * @param filePath   A path to a file.
+         * @returns A promise of the file being added.
          */
         private addFilePath(filePath: string): Promise<void> {
             return this
@@ -75,7 +76,7 @@ namespace TSLint.MSBuild {
                 return new Promise(resolve => resolve(folder));
             }
 
-            folder = this.folders[folderPath] = new Folder(folderPath, this.configLoader);
+            folder = this.folders[folderPath] = new Folder(folderPath);
 
             return folder
                 .loadTSLintConfig()
@@ -113,7 +114,7 @@ namespace TSLint.MSBuild {
          * @todo Should this reject instead of resolve with undefined?
          */
         private checkFolderParent(folderPath: string): Promise<Folder> {
-            if (folderPath.length < this.rootDirectory.length) {
+            if (folderPath.length < this.argumentsCollection.getFilesRootDir().length) {
                 return new Promise(resolve => resolve(undefined));
             }
 

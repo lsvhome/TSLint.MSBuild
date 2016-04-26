@@ -1,4 +1,5 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
+/// <reference path="ArgumentsCollection.ts" />
 /// <reference path="Folder.ts" />
 /// <reference path="FolderCollection.ts" />
 /// <reference path="LintRunner.ts" />
@@ -43,20 +44,22 @@ namespace TSLint.MSBuild {
     }
 
     (() => {
-        let rootDirectory: string = process.argv[2],
-            summaryFilePath: string = process.argv[3],
+        let argumentsCollection: ArgumentsCollection = new ArgumentsCollection(process.argv.slice(2)),
+            rootDirectory: string = argumentsCollection.getFilesRootDir(),
+            summaryFilePath: string = argumentsCollection.getFileListFile(),
             filePaths: string[] = getInputFilesList(summaryFilePath),
-            runner = new LintRunner(rootDirectory, new ConfigLoader());
+            filePathsIncluded: string[] = filePaths.filter(
+                filePath => !argumentsCollection.getExclude().test(filePath)),
+            runner = new LintRunner(argumentsCollection);
 
-        console.log(`Running TSLint on ${filePaths.length} files.`);
-        console.log(`Root directory is '${rootDirectory}'.`);
+        console.log(`Running TSLint on ${filePathsIncluded.length} of ${filePaths.length} file(s) (excluding ${filePaths.length - filePathsIncluded.length}).`);
 
         runner
-            .addFilePaths(filePaths)
+            .addFilePaths(filePathsIncluded)
             .then(() => runner.runTSLint())
             .then(lintErrors => {
                 if (lintErrors.length === 0) {
-                    console.log(`0 errors found in ${filePaths.length} files.`);
+                    console.log(`0 errors found in ${filePathsIncluded.length} file(s).`);
                     return;
                 }
 
@@ -65,7 +68,7 @@ namespace TSLint.MSBuild {
                     .join("\n");
 
                 console.error(lintErrorsFormatted);
-                console.log(`${lintErrors.length} errors found in ${filePaths.length} files.`);
+                console.log(`${lintErrors.length} error(s) found in ${filePathsIncluded.length} file(s).`);
             })
             .catch(error => {
                 console.error("Error running TSLint!");
