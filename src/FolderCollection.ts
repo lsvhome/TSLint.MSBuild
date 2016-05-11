@@ -1,200 +1,197 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
-/// <reference path="ArgumentsCollection.ts" />
-/// <reference path="Folder.ts" />
 
-namespace TSLint.MSBuild {
-    "use strict";
+import { ArgumentsCollection } from "./ArgumentsCollection";
+import { Folder } from "./Folder";
+
+/**
+ * A collection of folders, generated from individual file paths.
+ */
+export class FolderCollection {
+    /**
+     * Parsed arguments to the program.
+     */
+    private argumentsCollection: ArgumentsCollection;
 
     /**
-     * A collection of folders, generated from individual file paths.
+     * Known folders that have been added.
      */
-    export class FolderCollection {
-        /**
-         * Parsed arguments to the program.
-         */
-        private argumentsCollection: ArgumentsCollection;
+    private folders: { [i: string]: Folder } = {};
 
-        /**
-         * Known folders that have been added.
-         */
-        private folders: { [i: string]: Folder } = {};
+    /**
+     * Initializes a new instance of the LintRunner class.
+     * 
+     * @param argumentsCollection   Parsed arguments to the program.
+     */
+    constructor(argumentsCollection: ArgumentsCollection) {
+        this.argumentsCollection = argumentsCollection;
+    }
 
-        /**
-         * Initializes a new instance of the LintRunner class.
-         * 
-         * @param argumentsCollection   Parsed arguments to the program.
-         */
-        constructor(argumentsCollection: ArgumentsCollection) {
-            this.argumentsCollection = argumentsCollection;
+    /**
+     * @returns The known added folders, in sorted order.
+     */
+    public getFolders(): Folder[] {
+        const folderPaths: string[] = Object.keys(this.folders);
+
+        folderPaths.sort();
+
+        return folderPaths.map(folderPath => this.folders[folderPath]);
+    }
+
+    /**
+     * Adds a set of file paths, then sanitizies for tslint.jsons.
+     * 
+     * @param filePaths   File paths to add to the collection.
+     * @returns A promise of the file paths loading their tslint.jsons.
+     */
+    public addFilePaths(filePaths: string[]): Promise<any> {
+        return Promise
+            .all(filePaths.map(filePath => this.addFilePath(filePath)))
+            .then(() => this.ensureFoldersHaveConfigs());
+    }
+
+    /**
+     * Adds a file path and its containing folder path.
+     * 
+     * @param filePath   A path to a file.
+     * @returns A promise of the file being added.
+     */
+    private addFilePath(filePath: string): Promise<void> {
+        return this
+            .addFolderPath(this.parseParentPathFromPath(filePath))
+            .then(folder => folder.addFilePath(filePath));
+    }
+
+    /**
+     * Adds a folder path and checks for its tslint.json.
+     * 
+     * @param folderPath   A path to a folder.
+     * @returns A Promise for a representation of that folder.
+     */
+    private addFolderPath(folderPath: string): Promise<Folder> {
+        let folder = this.folders[folderPath];
+
+        if (folder) {
+            return new Promise(resolve => resolve(folder));
         }
 
-        /**
-         * @returns The known added folders, in sorted order.
-         */
-        public getFolders(): Folder[] {
-            let folderPaths: string[] = Object.keys(this.folders);
+        folder = this.folders[folderPath] = new Folder(folderPath);
 
-            folderPaths.sort();
+        return folder
+            .loadTSLintConfig()
+            .then(lintConfig => this.onFolderLoad(lintConfig, folderPath));
+    }
 
-            return folderPaths.map(folderPath => this.folders[folderPath]);
+    /**
+     * Responds to a folder load, checking its parent's tslint.json if necessary.
+     * 
+     * @param lintConfig   Whether the folder had its own tslint.json. 
+     * @param folderPath   The path to the folder.
+     * @returns A promise for the folder.
+     */
+    private onFolderLoad(foundConfig: boolean, folderPath: string): Promise<Folder> {
+        const folder: Folder = this.folders[folderPath];
+
+        if (foundConfig) {
+            return new Promise(resolve => resolve(folder));
         }
 
-        /**
-         * Adds a set of file paths, then sanitizies for tslint.jsons.
-         * 
-         * @param filePaths   File paths to add to the collection.
-         * @returns A promise of the file paths loading their tslint.jsons.
-         */
-        public addFilePaths(filePaths: string[]): Promise<any> {
-            return Promise
-                .all(filePaths.map(filePath => this.addFilePath(filePath)))
-                .then(() => this.ensureFoldersHaveConfigs());
-        }
-
-        /**
-         * Adds a file path and its containing folder path.
-         * 
-         * @param filePath   A path to a file.
-         * @returns A promise of the file being added.
-         */
-        private addFilePath(filePath: string): Promise<void> {
+        return new Promise(resolve => {
             return this
-                .addFolderPath(this.parseParentPathFromPath(filePath))
-                .then(folder => folder.addFilePath(filePath));
+                .checkFolderParent(folderPath)
+                .then(() => resolve(folder));
+        });
+    }
+
+    /**
+     * Checks for a folder's parent's tslint.json for a folder that doesn't
+     * have its own, recursively adding parent paths.
+     * 
+     * @param folderPath   A path to a folder that has been loaded.
+     * @returns A promise for the parent Folder, if it exists.
+     * @todo Check relative to the root solution/package path?
+     * @todo Should this reject instead of resolve with undefined?
+     */
+    private checkFolderParent(folderPath: string): Promise<Folder> {
+        if (folderPath.length < this.argumentsCollection.getFilesRootDir().length) {
+            return new Promise(resolve => resolve(undefined));
         }
 
-        /**
-         * Adds a folder path and checks for its tslint.json.
-         * 
-         * @param folderPath   A path to a folder.
-         * @returns A Promise for a representation of that folder.
-         */
-        private addFolderPath(folderPath: string): Promise<Folder> {
-            let folder = this.folders[folderPath];
+        const folder: Folder = this.folders[folderPath];
+        const parentPath: string = this.parseParentPathFromPath(folderPath);
 
-            if (folder) {
-                return new Promise(resolve => resolve(folder));
-            }
-
-            folder = this.folders[folderPath] = new Folder(folderPath);
-
-            return folder
-                .loadTSLintConfig()
-                .then(lintConfig => this.onFolderLoad(lintConfig, folderPath));
+        if (parentPath === folderPath) {
+            return new Promise(resolve => resolve(undefined));
         }
 
-        /**
-         * Responds to a folder load, checking its parent's tslint.json if necessary.
-         * 
-         * @param lintConfig   Whether the folder had its own tslint.json. 
-         * @param folderPath   The path to the folder.
-         * @returns A promise for the folder.
-         */
-        private onFolderLoad(foundConfig: boolean, folderPath: string): Promise<Folder> {
-            let folder: Folder = this.folders[folderPath];
+        return this
+            .addFolderPath(parentPath)
+            .then(parentFolder => parentFolder.waitForTSLint())
+            .then(parentFolder => {
+                const parentTSLintConfig = parentFolder.getTSLintConfig();
 
-            if (foundConfig) {
-                return new Promise(resolve => resolve(folder));
-            }
+                if (parentTSLintConfig) {
+                    folder.setTSLintConfig(parentTSLintConfig);
+                }
 
-            return new Promise(resolve => {
-                return this
-                    .checkFolderParent(folderPath)
-                    .then(() => resolve(folder));
+                return parentFolder;
             });
-        }
+    }
 
-        /**
-         * Checks for a folder's parent's tslint.json for a folder that doesn't
-         * have its own, recursively adding parent paths.
-         * 
-         * @param folderPath   A path to a folder that has been loaded.
-         * @returns A promise for the parent Folder, if it exists.
-         * @todo Check relative to the root solution/package path?
-         * @todo Should this reject instead of resolve with undefined?
-         */
-        private checkFolderParent(folderPath: string): Promise<Folder> {
-            if (folderPath.length < this.argumentsCollection.getFilesRootDir().length) {
-                return new Promise(resolve => resolve(undefined));
+    /**
+     * @todo Fix the actual issue, instead of this crappy fix...
+     */
+    private ensureFoldersHaveConfigs(): void {
+        this.getFolders()
+            .filter(folder => !folder.getTSLintConfig())
+            .forEach(folder => this.ensureFolderHasConfig(folder));
+    }
+
+    /**
+     * @todo Fix the actual issue, instead of this crappy fix...
+     */
+    private ensureFolderHasConfig(folder: Folder): void {
+        let currentPath: string = folder.getPath();
+
+        while (true) {
+            const parentPath: string = this.parseParentPathFromPath(currentPath);
+            if (!parentPath || parentPath === currentPath) {
+                return;
             }
 
-            let folder: Folder = this.folders[folderPath],
-                parentPath: string = this.parseParentPathFromPath(folderPath);
-
-            if (parentPath === folderPath) {
-                return new Promise(resolve => resolve(undefined));
+            const ancestor: Folder = this.folders[parentPath];
+            if (!ancestor || ancestor === folder) {
+                return;
             }
 
-            return this
-                .addFolderPath(parentPath)
-                .then(parentFolder => parentFolder.waitForTSLint())
-                .then(parentFolder => {
-                    let parentTSLintConfig = parentFolder.getTSLintConfig();
-
-                    if (parentTSLintConfig) {
-                        folder.setTSLintConfig(parentTSLintConfig);
-                    }
-
-                    return parentFolder;
-                });
-        }
-
-        /**
-         * @todo Fix the actual issue, instead of this crappy fix...
-         */
-        private ensureFoldersHaveConfigs(): void {
-            this.getFolders()
-                .filter(folder => !folder.getTSLintConfig())
-                .forEach(folder => this.ensureFolderHasConfig(folder));
-        }
-
-        /**
-         * @todo Fix the actual issue, instead of this crappy fix...
-         */
-        private ensureFolderHasConfig(folder: Folder): void {
-            let currentPath: string = folder.getPath();
-
-            while (true) {
-                let parentPath: string = this.parseParentPathFromPath(currentPath);
-                if (!parentPath || parentPath === currentPath) {
-                    return;
-                }
-
-                let ancestor: Folder = this.folders[parentPath];
-                if (!ancestor || ancestor === folder) {
-                    return;
-                }
-
-                let tsLintConfig = ancestor.getTSLintConfig();
-                if (tsLintConfig) {
-                    folder.setTSLintConfig(tsLintConfig);
-                    return;
-                }
-
-                currentPath = parentPath;
-
-                if (parentPath === ".") {
-                    return;
-                }
-            }
-        }
-
-        /**
-         * @param folderPath   A path to a folder.
-         * @returns The path to the folder's parent.
-         * @todo Research if this is possible using the path module.
-         */
-        private parseParentPathFromPath(folderPath: string): string {
-            let lastForwardSlashIndex: number = folderPath.lastIndexOf("/"),
-                lastBackSlashIndex: number = folderPath.lastIndexOf("\\"),
-                lastSlashIndex: number = Math.max(lastForwardSlashIndex, lastBackSlashIndex),
-                parentPath: string = folderPath.substring(0, lastSlashIndex);
-
-            if (!parentPath || parentPath === folderPath) {
-                return ".";
+            const tsLintConfig = ancestor.getTSLintConfig();
+            if (tsLintConfig) {
+                folder.setTSLintConfig(tsLintConfig);
+                return;
             }
 
-            return parentPath;
+            currentPath = parentPath;
+
+            if (parentPath === ".") {
+                return;
+            }
         }
+    }
+
+    /**
+     * @param folderPath   A path to a folder.
+     * @returns The path to the folder's parent.
+     * @todo Research if this is possible using the path module.
+     */
+    private parseParentPathFromPath(folderPath: string): string {
+        const lastForwardSlashIndex: number = folderPath.lastIndexOf("/");
+        const lastBackSlashIndex: number = folderPath.lastIndexOf("\\");
+        const lastSlashIndex: number = Math.max(lastForwardSlashIndex, lastBackSlashIndex);
+        const parentPath: string = folderPath.substring(0, lastSlashIndex);
+
+        if (!parentPath || parentPath === folderPath) {
+            return ".";
+        }
+
+        return parentPath;
     }
 }

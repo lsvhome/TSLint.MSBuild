@@ -1,6 +1,6 @@
 {
   "name": "tslint-msbuild",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": " An MSBuild target for linting TypeScript code using TSLint.",
   "author": "Joshua K Goldberg",
   "license": "MIT",
