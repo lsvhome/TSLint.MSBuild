@@ -238,12 +238,14 @@ export class TSLintSearcher {
      * @returns Whether a is less than b.
      */
     private static versionSorter(a: number[], b: number[]): number {
-        for (let i: number = 0; i < a.length; i += 1) {
+        const minimumLength = Math.min(a.length, b.length);
+
+        for (let i: number = 0; i < minimumLength; i += 1) {
             if (a[i] !== b[i]) {
-                return a[i] < b[i] ? -1 : 1;
+                return a[i] > b[i] ? -1 : 1;
             }
         }
 
-        return -1;
+        return a.length > b.length ? -1 : 1;
     }
 }
