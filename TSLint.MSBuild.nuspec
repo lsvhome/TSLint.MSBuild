@@ -2,18 +2,18 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>TSLint.MSBuild</id>
-    <version>0.1.3</version>
+    <version>0.3.0</version>
     <authors>palantir, joshuakgoldberg</authors>
     <owners>joshuakgoldberg</owners>
-    <licenseUrl>https://github.com/joshuakgoldberg/TSLint.MSBuild/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/joshuakgoldberg/TSLint.MSBuild</projectUrl>
+    <licenseUrl>https://github.com/JoshuaKGoldberg/TSLint.MSBuild/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/JoshuaKGoldberg/TSLint.MSBuild</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      An MSBuild target for Palantir's wonderful TSLint.
+      An MSBuild target for linting TypeScript code using TSLint.
     </description>
     <tags>tslint, msbuild</tags>
     <dependencies>
-      <dependency id="tslint" version="3.5.2" />
+      <dependency id="tslint" version="3.7.0" />
     </dependencies>
   </metadata>
   <files>
@@ -23,6 +23,6 @@
     <file src="dist\node-*.exe" target="tools" />
     <file src="dist\package.json" target="tools" />
     <file src="dist\README.md" target="tools" />
-    <file src="dist\runner.js" target="tools" />
+    <file src="dist\*.js" target="tools" />
   </files>
 </package>

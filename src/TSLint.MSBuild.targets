@@ -7,16 +7,19 @@
 
   <Target 
     AfterTargets="CompileTypeScript"
-    Condition="'@(TypeScriptCompile)' != ''"
+    Condition="'@(TypeScriptCompile)' != '' and '$(BuildingProject)' == 'true'"
     Name="TSLint">
     <PropertyGroup>
+      <TSLintBreakBuildOnError Condition="'$(TSLintBreakBuildOnError)' == ''">false</TSLintBreakBuildOnError>
       <TSLintDeleteFileListFile Condition="'$(TSLintDeleteFileListFile)' == ''">true</TSLintDeleteFileListFile>
+      <TSLintExclude Condition="'$(TSLintExclude)' == ''">^$</TSLintExclude>
+      <TSLintFilesRootDir Condition="'$(TSLintFilesRootDir)' == ''">$(MSBuildProjectDirectory)</TSLintFilesRootDir>
       <TSLintFileListDir Condition="'$(TSLintFileListDir)' == ''">$(IntermediateOutDir)</TSLintFileListDir>
       <TSLintFileListName Condition="'$(TSLintFileListName)' == ''">TSLintFileList-$(MSBuildProjectName).txt</TSLintFileListName>
       <TSLintFileListFile>$(TSLintFileListDir)$(TSLintFileListName)</TSLintFileListFile>
-      <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-5.9.0.exe"))</TSLintNodeExe>
-      <TSLintRunnerScript Condition="'$(TSLintRunnerScript)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\runner.js"))</TSLintRunnerScript>
-      <TSLintFilesRootDir Condition="'$(TSLintFilesRootDir)' == ''">$(MSBuildProjectDirectory)</TSLintFilesRootDir>
+      <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-6.1.0.exe"))</TSLintNodeExe>
+      <TSLintRulesDirectory Condition="'$(TSLintRulesDirectory)' == ''"></TSLintRulesDirectory>
+      <TSLintRunnerScript Condition="'$(TSLintRunnerScript)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\index.js"))</TSLintRunnerScript>
     </PropertyGroup>
 
     <ItemGroup>
@@ -32,10 +35,15 @@
 
     <!-- Run TSLint via the runner -->
     <Exec 
-      Command="&quot;$(TSLintNodeExe)&quot; --harmony &quot;$(TSLintRunnerScript)&quot; &quot;$(TSLintFilesRootDir)&quot; &quot;$(TSLintFileListFile)&quot;"
-      IgnoreExitCode="true" />
+      Command="&quot;$(TSLintNodeExe)&quot; --harmony --harmony_modules &quot;$(TSLintRunnerScript)&quot; -exclude &quot;$(TSLintExclude)&quot; -files-root-dir &quot;$(TSLintFilesRootDir)&quot; -file-list-file &quot;$(TSLintFileListFile)&quot; -rules-directory &quot;$(TSLintRulesDirectory)&quot;"
+      IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
 
     <!-- Clean up our compiled file list when done -->
     <Delete Condition="'$(TSLintDeleteFileListFile)' == 'true'" Files="$(TSLintFileListFile)" />
+
+    <!-- Return an error if linter returned exitcode -1 and we should break on errors -->
+    <Error Condition="'$(ErrorCode)' == '-1' and '$(TSLintBreakBuildOnError)' == 'true'" />
   </Target>
 </Project>

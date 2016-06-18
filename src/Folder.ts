@@ -1,116 +1,123 @@
-/// <reference path="../typings/main/ambient/node/index.d.ts" />
-/// <reference path="WaitLock.ts" />
-/// <reference path="./ConfigLoader.ts" />
+/// <reference path="../typings/main.d.ts" />
+/// <reference path="./WaitLock.ts" />
 
-namespace TSLint.MSBuild {
-    "use strict";
+import * as fs from "fs";
+import * as path from "path";
+import { WaitLock } from "./WaitLock";
 
-    let fs = require("fs"),
-        path = require("path");
+/**
+ * A representation of a directory with files and optionally a tslint.json.
+ */
+export class Folder {
     /**
-     * A representation of a directory with files and optionally a tsconfig.json.
+     * This folder's path.
      */
-    export class Folder {
-        /**
-         * This folder's path.
-         */
-        private path: string;
+    private path: string;
 
-        /**
-         * Files registered under this folder.
-         */
-        private filePaths: string[] = [];
+    /**
+     * Files registered under this folder.
+     */
+    private filePaths: string[] = [];
 
-        /**
-         * TSLint configuration for this folder, if it exists.
-         */
-        private tsLintConfig: any;
+    /**
+     * Rules list for this folder, if it exists.
+     */
+    private rules: any;
 
-        /**
-         * Waiter for loading the tslint.json configuration. 
-         */
-        private loadWaiter: WaitLock = new WaitLock();
+    /**
+     * Waiter for loading the tslint.json rules 
+     */
+    private loadWaiter: WaitLock = new WaitLock();
 
-        /**
-         * Initializes a new instance of the Folder class.
-         * 
-         * @param path   The path to this folder.
-         * @param configLoader  The configuration loader.
-         */
-        constructor(path: string, private configLoader: ConfigLoader) {
-            this.path = path;
-        }
+    /**
+     * Initializes a new instance of the Folder class.
+     * 
+     * @param path   The path to this folder.
+     */
+    constructor(path: string) {
+        this.path = path;
+    }
 
-        /**
-         * @returns The path to this folder.
-         */
-        public getPath(): string {
-            return this.path;
-        }
+    /**
+     * @returns The path to this folder.
+     */
+    public getPath(): string {
+        return this.path;
+    }
 
-        /**
-         * @returns Files registered under this folder.
-         */
-        public getFilePaths(): string[] {
-            return this.filePaths;
-        }
+    /**
+     * @returns Files registered under this folder.
+     */
+    public getFilePaths(): string[] {
+        return this.filePaths;
+    }
 
-        /**
-         * @returns TSLint configuration for this folder, if it exists.
-         */
-        public getTSLintConfig(): any {
-            return this.tsLintConfig;
-        }
+    /**
+     * @returns Rules list for this folder, if it exists.
+     */
+    public getRules(): any {
+        return this.rules;
+    }
 
-        /**
-         * Sets the TSLint configuration for this folder.
-         * 
-         * @param tsconfig   A new TSLint configuration for this folder.
-         */
-        public setTSLintConfig(tsconfig: any): any {
-            this.tsLintConfig = tsconfig;
-            this.loadWaiter.markActionCompletion();
-        }
+    /**
+     * Sets the rules list for this folder.
+     * 
+     * @param rules   A new rules lits for this folder.
+     */
+    public setRules(rules: any): any {
+        this.rules = rules;
+        this.loadWaiter.markActionCompletion();
+    }
 
-        /**
-         * Adds a file path to the list of file paths.
-         * 
-         * @param filePath   A path to a TypeScript file.
-         */
-        public addFilePath(filePath: string): void {
-            this.filePaths.push(filePath);
-        }
+    /**
+     * Adds a file path to the list of file paths.
+     * 
+     * @param filePath   A path to a TypeScript file.
+     */
+    public addFilePath(filePath: string): void {
+        this.filePaths.push(filePath);
+    }
 
-        /**
-         * Loads a tslint.json from this folder.
-         * 
-         * @returns A Promise for whether a tslint.json was found.
-         */
-        public loadTSLintConfig(): Promise<boolean> {
-            this.loadWaiter.markActionStart();
-            return this.configLoader
-                .readJSONConfig(path.join(this.path, "tslint.json"))
-                .then((config) => {
-                    this.setTSLintConfig({
-                        formatter: "json",
-                        configuration: config
-                    });
-                    return true;
-                })
-                .catch((error) => {
-                    this.setTSLintConfig(undefined);
-                });
-        }
+    /**
+     * Loads a tslint.json from this folder.
+     * 
+     * @returns A Promise for whether a tslint.json was found.
+     */
+    public loadRules(): Promise<boolean> {
+        this.loadWaiter.markActionStart();
 
-        /**
-         * Waits for this folder to load its tsconfig.json.
-         * 
-         * @returns A Promise for this folder to load its tsconfig.json.
-         */
-        public waitForTSLint(): Promise<Folder> {
-            return new Promise(resolve => {
-                return this.loadWaiter.addCallback(() => resolve(this));
+        return new Promise(resolve => {
+            fs.readFile(path.join(this.path, "tslint.json"), (error, result) => {
+                if (error) {
+                    this.setRules(undefined);
+                    resolve(false);
+                    return;
+                }
+
+                this.setRules(this.sanitizeFileContents(result));
+                resolve(true);
             });
-        }
+        });
+    }
+
+    /**
+     * Waits for this folder to load its tslint.json.
+     * 
+     * @returns A Promise for this folder to load its tslint.json.
+     */
+    public waitForTSLint(): Promise<Folder> {
+        return new Promise(resolve => {
+            return this.loadWaiter.addCallback(() => resolve(this));
+        });
+    }
+
+    /**
+     * Sanitizes a file's contents in case of an odd BOM.
+     * 
+     * @param raw   Raw contents of a file.
+     * @returns The BOM-sanitized equivalent text.
+     */
+    private sanitizeFileContents(raw: any): string {
+        return JSON.parse(raw.toString().replace(/^\uFEFF/, ""));
     }
 }
