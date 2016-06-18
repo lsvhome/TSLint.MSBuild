@@ -33,6 +33,11 @@ module.exports = function (grunt) {
                 "dest": "<%= meta.paths.distribution %>"
             }
         },
+        "mochaTest": {
+            "test": {
+                "src": ["test/unit.js"],
+            }
+        },
         "tslint": {
             "distribution": {
                 "files": {
@@ -49,18 +54,23 @@ module.exports = function (grunt) {
             }
         }
     });
-    
+
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-contrib-copy");
+    grunt.loadNpmTasks("grunt-mocha-test");
     grunt.loadNpmTasks("grunt-nuget");
     grunt.loadNpmTasks("grunt-ts");
     grunt.loadNpmTasks("grunt-tslint");
-    
+
     grunt.registerTask("quick", [
         "tslint", "clean", "ts", "copy"
     ]);
-    
+
+    grunt.registerTask("test", [
+        "mochaTest"
+    ]);
+
     grunt.registerTask("default", [
-        "quick", "nugetpack"
+        "quick", "test", "nugetpack"
     ]);
 };
