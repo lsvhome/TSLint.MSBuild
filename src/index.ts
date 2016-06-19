@@ -21,49 +21,26 @@ function getInputFilesList(filePath): string[] {
         .filter(file => !!file);
 }
 
-/**
- * Formats a TSLint error for display in Visual Studio.
- * 
- * @param lintError   Either a TSLint violation POJO or an error String.
- * @todo Use tslint.d.ts for a type definition.
- */
-function formatOutput(lintError: string | any): string {
-    if (typeof lintError === "string") {
-        return lintError;
-    }
-
-    return lintError.name.replace(/\//g, "\\")
-        + `(${(lintError.startPosition.line + 1)},${(lintError.startPosition.character + 1)})`
-        + `: error tslint-${lintError.ruleName}`
-        + `: TSLint failure: ${lintError.failure}.`;
-}
-
 (() => {
-    const argumentsCollection: ArgumentsCollection = new ArgumentsCollection(process.argv.slice(2));
+    const argumentsCollection: ArgumentsCollection = new ArgumentsCollection()
+        .collectInputs(process.argv.slice(2))
+        .logCollection();
     const rootDirectory: string = argumentsCollection.getFilesRootDir();
     const summaryFilePath: string = argumentsCollection.getFileListFile();
     const filePaths: string[] = getInputFilesList(summaryFilePath);
-    const filePathsIncluded: string[] = filePaths.filter(
-            filePath => !argumentsCollection.getExclude().test(filePath));
-    const runner = new LintRunner(argumentsCollection);
+    const runner = new LintRunner(argumentsCollection, filePaths);
 
-    console.log(`Running TSLint on ${filePathsIncluded.length} of ${filePaths.length} file(s) (excluding ${filePaths.length - filePathsIncluded.length}).`);
+    console.log(`Running TSLint on ${filePaths.length} file(s).`);
 
-    runner
-        .addFilePaths(filePathsIncluded)
-        .then(() => runner.runTSLint())
+    runner.runTSLint()
         .then(lintErrors => {
-            if (lintErrors.length === 0) {
-                console.log(`0 errors found in ${filePathsIncluded.length} file(s).`);
-                return;
+            const numErrors = lintErrors.match(/\n/g).length;
+
+            if (numErrors !== 0) {
+                console.error(lintErrors);
             }
 
-            const lintErrorsFormatted = lintErrors
-                .map(lintError => formatOutput(lintError))
-                .join("\n");
-
-            console.error(lintErrorsFormatted);
-            console.log(`${lintErrors.length} error(s) found in ${filePathsIncluded.length} file(s).`);
+            console.log(`${numErrors} error(s) found in ${filePaths.length} file(s).`);
         })
         .catch(error => {
             console.error("Error running TSLint!");
