@@ -6,6 +6,6 @@ for (const method of Object.keys(console)) {
 const MsBuild = require("msbuild");
 const builder = new MsBuild(); 
 
-builder.sourcePath = "test/end-to-end/TestSolution/TestProject/TestProject.sln";
+builder.sourcePath = "test/end-to-end/TestSolution/TestSolution.sln";
 builder.overrideParams.push("/clp:ErrorsOnly");
 builder.build();
