@@ -1,5 +1,5 @@
 const expect = require("chai").expect;
-const ArgumentsCollection = require("../../dist/ArgumentsCollection").ArgumentsCollection;
+const ArgumentsCollection = require("../../../dist/ArgumentsCollection").ArgumentsCollection;
 
 exports.runTests = () => {
     it("combines a CLI argument", () => {

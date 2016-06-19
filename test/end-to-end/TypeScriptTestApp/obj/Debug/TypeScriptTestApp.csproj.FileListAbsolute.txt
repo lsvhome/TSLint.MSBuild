@@ -1,0 +1,5 @@
+C:\Code\TSLint.MSBuild\test\end-to-end\TypeScriptTestApp\bin\TypeScriptTestApp.dll
+C:\Code\TSLint.MSBuild\test\end-to-end\TypeScriptTestApp\bin\TypeScriptTestApp.pdb
+C:\Code\TSLint.MSBuild\test\end-to-end\TypeScriptTestApp\obj\Debug\TypeScriptTestApp.csprojResolveAssemblyReference.cache
+C:\Code\TSLint.MSBuild\test\end-to-end\TypeScriptTestApp\obj\Debug\TypeScriptTestApp.dll
+C:\Code\TSLint.MSBuild\test\end-to-end\TypeScriptTestApp\obj\Debug\TypeScriptTestApp.pdb

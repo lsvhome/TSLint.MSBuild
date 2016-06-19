@@ -1,5 +1,5 @@
 const expect = require("chai").expect;
-const TSLintSearcher = require("../../dist/TSLintSearcher").TSLintSearcher;
+const TSLintSearcher = require("../../../dist/TSLintSearcher").TSLintSearcher;
 
 exports.runTests = () => {
     it("passes a semver folder name", () => {

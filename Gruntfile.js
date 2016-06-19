@@ -35,7 +35,10 @@ module.exports = function (grunt) {
         },
         "mochaTest": {
             "test": {
-                "src": ["test/unit.js"],
+                "src": [
+                    "test/unit/test.js",
+                    "test/end-to-end/test.js"
+                ]
             }
         },
         "tslint": {

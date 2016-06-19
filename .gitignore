@@ -10,3 +10,8 @@ dist
 src/**/*.js
 tools
 *.nupkg
+
+# Integration tests
+test/end-to-end/TestSolution/TestProject/bin
+test/end-to-end/TestSolution/TestProject/obj
+test/end-to-end/TestSolution/TestProject/.vs

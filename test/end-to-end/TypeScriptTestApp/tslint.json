@@ -1,0 +1,7 @@
+{
+    "rules": {
+        "eofline": true,
+        "no-trailing-whitespace": true,
+        "no-var-keyword": true
+    }
+}
