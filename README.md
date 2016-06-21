@@ -27,6 +27,10 @@ The following properties may be overidden via your targets:
 * **TSLintRulesDirectory** - Comma-separated list of directories for user-created rules. Defaults to none.
 * **TSLintRunnerScript** - The .js file to take in `TSLintFileListFile`. Defaults to the `tools\runner.js` in the package.
 
+### TSLint version
+
+The highest available TSLint version in your NuGet packages directory will be used. 
+
 
 ## Development
 
