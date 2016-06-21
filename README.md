@@ -9,6 +9,8 @@ An MSBuild target for linting TypeScript code using [TSLint](https://github.com/
 Add this package using the Visual Studio's NuGet Package Manager. 
 It should be automatically added to your project.
 
+Read the [TSLint documentation](https://github.com/palantir/tslint) for linting details.
+
 ### Builds
 
 At runtime, the list of .ts files from your build (`TypeScriptCompile`) is output to a temporary .txt file.
@@ -17,19 +19,13 @@ A .js runner file then takes in the path to that file list, scans for `tslint.js
 The following properties may be overidden via your targets:
 * **TSLintBreakBuildOnError** -  Whether linting failures should break the build. Defaults to `false`.
 * **TSLintDeleteFileListFile** - Whether to delete the file list file when done. Defaults to `true`.
-* **TSLintExclude** - A JavaScript RegExp literal of matching file names to exclude. Defaults to `"^$"` (none).
-* **TSLintFilesRootDir** - A root directory to work within. Defaults to `$(MSBuildProjectDirectory)`.
-* **TSLintFileListDir** - The directory to put the file list in. Defaults to `$(IntermediateOutDir)`.
-* **TSLintFileListName** - The name of the file list file. Defaults to `TSLintFileList.txt-$(MSBuildProjectName)`.
-* **TSLintNodeExe**: A node executable to execute the runner script. Defaults to the `tools\node-5.9.0.exe` in the package. 
-* **TSLintRulesDirectory** - An additional rules directory, for user-created rules. Multiple directories may be separated by commas.
+* **TSLintExclude** - Blob of matching file names to exclude. Defaults to none
+* **TSLintFilesRootDir** - Root directory to work within. Defaults to `$(MSBuildProjectDirectory)`.
+* **TSLintFileListDir** - Directory to put the file list in. Defaults to `$(IntermediateOutDir)`.
+* **TSLintFileListName** - Name of the file list file. Defaults to `TSLintFileList.txt-$(MSBuildProjectName)`.
+* **TSLintNodeExe**: Node executable to execute the runner script. Defaults to the `tools\node-5.9.0.exe` in the package. 
+* **TSLintRulesDirectory** - Comma-separated list of directories for user-created rules. Defaults to none.
 * **TSLintRunnerScript** - The .js file to take in `TSLintFileListFile`. Defaults to the `tools\runner.js` in the package.
-
-
-### tslint.json
-
-TSLint.MSBuild respects `tslint.json` settings in directories.
-Placing a `tslint.json` in a directory will affect that directory's children and all subdirectory children, unless superseded by another `tslint.json`. 
 
 
 ## Development
