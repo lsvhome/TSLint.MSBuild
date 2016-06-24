@@ -3,6 +3,11 @@
  */
 interface ICollected {
     /**
+     * Path to a specific tslint.json.
+     */
+    "--config"?: string;
+
+    /**
      * A glob path to exclude from linting.
      */
     "--exclude"?: string;
@@ -31,14 +36,14 @@ export class ArgumentsCollection {
      * Whitelist of allowed keys from the .targets file.
      */
     private static allowedKeys: Set<string> = new Set<string>([
-        "--file-list-file", "--files-root-dir", "--exclude", "--rules-directory"
+        "--config", "--exclude", "--file-list-file", "--files-root-dir", "--rules-directory"
     ]);
 
     /**
      * Keys to pass to the TSLint CLI.
      */
     private static cliKeys: Set<string> = new Set<string>([
-        "--exclude", "--rules-directory"
+        "--config", "--exclude", "--rules-directory"
     ]);
 
     /**
@@ -81,6 +86,13 @@ export class ArgumentsCollection {
     }
 
     /**
+     * @returns The path to a specific tslint.json.
+     */
+    public getConfig(): string {
+        return this.collected["--config"];
+    }
+
+    /**
      * @returns The root directory to work within.
      */
     public getFilesRootDir(): string {
@@ -103,7 +115,7 @@ export class ArgumentsCollection {
         const args: string[] = [];
 
         for (const key of ArgumentsCollection.cliKeys) {
-            if (this.collected.hasOwnProperty(key)) {
+            if (this.collected[key]) {
                 args.push(key, this.collected[key]);
             }
         }
