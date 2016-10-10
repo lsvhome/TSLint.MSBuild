@@ -9,12 +9,15 @@ An MSBuild target for linting TypeScript code using [TSLint](https://github.com/
 Add this package using the Visual Studio's NuGet Package Manager. 
 It should be automatically added to your project.
 
-Read the [TSLint documentation](https://github.com/palantir/tslint) for linting details.
+TSLint's default configuration's are used by default.
+If you'd like to use your own `tslint.json` file, add a `TSLintConfig` property to your project:
 
-### Builds
+```xml
+<TSLintConfig>Scripts/tslint.json</TSLintConfig>
+```
 
-At runtime, the list of .ts files from your build (`TypeScriptCompile`) is output to a temporary .txt file.
-A .js runner file then takes in the path to that file list, scans for `tslint.json` files, and runs TSLint on each .ts file.
+All overrideable item groups and properties are below.
+Read the [TSLint documentation](https://github.com/palantir/tslint) for TSLint-specific linting details.
 
 #### Overrideable Item Groups
 
