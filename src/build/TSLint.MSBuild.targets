@@ -20,6 +20,7 @@
 
     <!-- Grab the first matching TSLint CLI in a NuGet packages install -->
     <ItemGroup Condition="'$(TSLintCli)' == ''">
+      <TSLintPotentialCli Include="$(SolutionDir)packages\tslint.*.*.*\tools\node_modules\tslint\lib\tslint-cli.js" />
       <TSLintPotentialCli Include="$(MSBuildThisFileDirectory)..\..\tslint.*.*.*\tools\node_modules\tslint\lib\tslint-cli.js" />
     </ItemGroup>
     <PropertyGroup Condition="'$(TSLintCli)' == ''">
