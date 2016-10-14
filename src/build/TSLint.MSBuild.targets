@@ -15,7 +15,7 @@
       <TSLintBreakBuildOnError Condition="'$(TSLintBreakBuildOnError)' == ''">false</TSLintBreakBuildOnError>
       <TSLintConfig Condition="'$(TSLintConfig)' == ''"></TSLintConfig>
       <TSLintErrorSeverity Condition="'$(TSLintErrorSeverity)' == ''"></TSLintErrorSeverity>
-      <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)\..\tools\node-6.1.0.exe"))</TSLintNodeExe>
+      <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)..\tools\node-6.1.0.exe"))</TSLintNodeExe>
     </PropertyGroup>
 
     <!-- Grab the first matching TSLint CLI in a NuGet packages install -->
