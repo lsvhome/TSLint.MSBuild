@@ -13,15 +13,14 @@
     <!-- PropertyGroup settings -->
     <PropertyGroup>
       <TSLintBreakBuildOnError Condition="'$(TSLintBreakBuildOnError)' == ''">false</TSLintBreakBuildOnError>
-      <TSLintConfig Condition="'$(TSLintConfig)' == ''"></TSLintConfig>
-      <TSLintErrorSeverity Condition="'$(TSLintErrorSeverity)' == ''"></TSLintErrorSeverity>
       <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)..\tools\node-6.1.0.exe"))</TSLintNodeExe>
+      <TSLintVersion Condition="'$(TSLintVersion)' == ''">*.*.*</TSLintVersion>
     </PropertyGroup>
 
     <!-- Grab the first matching TSLint CLI in a NuGet packages install -->
     <ItemGroup Condition="'$(TSLintCli)' == ''">
-      <TSLintPotentialCli Include="$(SolutionDir)packages\tslint.*.*.*\tools\node_modules\tslint\lib\tslint-cli.js" />
-      <TSLintPotentialCli Include="$(MSBuildThisFileDirectory)..\..\tslint.*.*.*\tools\node_modules\tslint\lib\tslint-cli.js" />
+      <TSLintPotentialCli Include="$(SolutionDir)packages\tslint.$(TSLintVersion)\tools\node_modules\tslint\lib\tslint-cli.js" />
+      <TSLintPotentialCli Include="$(MSBuildThisFileDirectory)..\..\tslint.$(TSLintVersion)\tools\node_modules\tslint\lib\tslint-cli.js" />
     </ItemGroup>
     <PropertyGroup Condition="'$(TSLintCli)' == ''">
       <TSLintCliProperty>@(TSLintPotentialCli);</TSLintCliProperty>
@@ -40,7 +39,10 @@
       <TSLintArgs Condition="'$(TSLintConfig)' != ''">$(TSLintArgs) --config $(TSLintConfig)</TSLintArgs>
       <TSLintArgs Condition="'@(TSLintExclude)' != ''">$(TSLintArgs) --exclude $(TSLintExcludeJoined)</TSLintArgs>
       <TSLintArgs>$(TSLintArgs) --format msbuild</TSLintArgs>
+      <TSLintArgs Condition="'$(TSLintProject)' != ''">$(TSLintArgs) --project $(TSLintProject)</TSLintArgs>
+      <TSLintArgs Condition="'$(TSLintTypeCheck)' != ''">$(TSLintArgs) --type-check $(TSLintTypeCheck)</TSLintArgs>
       <TSLintArgs Condition="'@(TSLintRulesDirectory)' != ''">$(TSLintArgs) --rules-dir @(TSLintRulesDirectory, ' --rules-dir ')</TSLintArgs>
+      <TSLintArgs Condition="'$(TSLintExtraArgs)' != ''">$(TSLintArgs) $(TSLintExtraArgs)</TSLintArgs>
       <TSLintArgs Condition="'@(TypeScriptCompile)' != ''">$(TSLintArgs) @(TypeScriptCompile, ' ')</TSLintArgs>
     </PropertyGroup>
 

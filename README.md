@@ -33,12 +33,12 @@ Read the [TSLint documentation](https://github.com/palantir/tslint) for TSLint-s
         <tr>
             <th><code>TSLintExclude</code></th>
             <td>Globs of file names to exclude.</td>
-            <td><em>(blank)</em></td>
+            <td><em><code>(blank)</code></em></td>
         </tr>
         <tr>
             <th><code>TSLintRulesDirectory</code></th>
             <td>Directories for user-created rules</td>
-            <td><em>(blank)</em></td>
+            <td><em><code>(blank)</code></em></td>
         </tr>
     </tbody>
 </table>
@@ -69,7 +69,7 @@ Note that to use special characters (such as `*` wildcards) in `TSLintExclude` y
         <tr>
             <th><code>TSLintConfig</code></th>
             <td>Path to a specific tslint.json.</td>
-            <td><em>(blank)</em></td>
+            <td><em><code>(blank)</code></em></td>
         </tr>
         <tr>
             <th><code>TSLintCli</code></th>
@@ -82,14 +82,34 @@ Note that to use special characters (such as `*` wildcards) in `TSLintExclude` y
             <td><code>false</code></td>
         </tr>
         <tr>
+            <th><code>TSLintExtraArgs</code></th>
+            <td>Any extra arguments to pass to the TSLint CLI.</td>
+            <td><code>(blank)</code></td>
+        </tr>
+        <tr>
             <th><code>TSLintNodeExe</code></th>
             <td>Path to a Node executable to execute the runner script.</td>
             <td>The <code>tools\node-6.1.0.exe</code> in the package.</td>
         </tr>
         <tr>
+            <th><code>TSLintProject</code></th>
+            <td>Path to a <code>tsconfig.json</code> file to use as a type checker project.</td>
+            <td><em><code>(blank)</code></em></td>
+        </tr>
+        <tr>
             <th><code>TSLintRunOutsideBuildingProject</code></th>
             <td>Whether to run even if `BuildingProject` isn't `true`.</td>
-            <td><em>(blank)</em></td>
+            <td><em><code>(blank)</code></em></td>
+        </tr>
+        <tr>
+            <th><code>TSLintTypeCheck</code></th>
+            <td>Whether to enable the type checker (requires <code>TSLintProject</code> be set).</td>
+            <td><code>false</code></td>
+        </tr>
+        <tr>
+            <th><code>TSLintVersion</code></th>
+            <td>Glob filter for the version of TSLint to use <em>(ignored if <code>TSLintConfig</code> is provided)</em>.</td>
+            <td><code>*.*.*</code></td>
         </tr>
     </tbody>
 </table>
