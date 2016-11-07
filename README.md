@@ -6,7 +6,7 @@ An MSBuild target for linting TypeScript code using [TSLint](https://github.com/
 
 ## Usage
 
-Add this package using the Visual Studio's NuGet Package Manager. 
+Add this package and [TSLint](https://www.nuget.org/packages/tslint) using the Visual Studio's NuGet Package Manager. 
 It should be automatically added to your project.
 
 TSLint's default configuration's are used by default.
