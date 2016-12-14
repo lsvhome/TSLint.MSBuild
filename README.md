@@ -184,6 +184,9 @@ This is better for performance but has two downsides:
 * It no longer searches for the "highest" available TSLint version in the packages directory; instead, the first found in a file search is used.
 * The `TSLintErrorSeverity` flag is no longer supported (until TSLint adds support for error levels).
 
+Furthermore, `1.0.0` removed the TSLint NuGet package dependency.
+You'll need to install it separately.
+
 #### Why?
 
 The original structure of TSLint.MSBuild requires multiple layers of processes calling each other, which can wreak havoc in complex managed build systems.
