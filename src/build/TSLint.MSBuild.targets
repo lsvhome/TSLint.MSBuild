@@ -5,7 +5,7 @@
     <TypeScriptAllProjects>$(TypeScriptAllProjects);$(MSBuildThisFileFullPath)</TypeScriptAllProjects>
   </PropertyGroup>
 
-  <Target 
+  <Target
     AfterTargets="CompileTypeScript"
     Condition="'@(TypeScriptCompile)' != '' and ('$(BuildingProject)' == 'true' or '$(TSLintRunWhenNotBuilding)' == 'true')"
     Name="TSLint">
@@ -47,7 +47,7 @@
     </PropertyGroup>
 
     <!-- Run TSLint using the Node executable -->
-    <Exec 
+    <Exec
       Command="&quot;$(TSLintNodeExe)&quot; $(TSLintCli) $(TSLintArgs)"
       Condition="'$(TSLintDisabled)' != 'true'"
       ConsoleToMsBuild="true"

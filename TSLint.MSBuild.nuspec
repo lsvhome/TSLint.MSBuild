@@ -3,7 +3,7 @@
   <metadata>
     <id>TSLint.MSBuild</id>
     <title>TSLint.MSBuild</title>
-    <version>1.0.0-beta1</version>
+    <version>1.0.0</version>
     <authors>palantir, joshuakgoldberg</authors>
     <owners>joshuakgoldberg</owners>
     <licenseUrl>https://github.com/JoshuaKGoldberg/TSLint.MSBuild/blob/master/LICENSE.md</licenseUrl>
@@ -13,9 +13,6 @@
       An MSBuild target for linting TypeScript code using TSLint.
     </description>
     <tags>tslint, msbuild</tags>
-    <dependencies>
-      <dependency id="tslint" version="3.15.1" />
-    </dependencies>
   </metadata>
   <files>
     <file src="LICENSE.md" target="tools" />

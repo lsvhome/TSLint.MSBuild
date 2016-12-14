@@ -6,10 +6,10 @@ An MSBuild target for linting TypeScript code using [TSLint](https://github.com/
 
 ## Usage
 
-Add this package using the Visual Studio's NuGet Package Manager. 
+Add this package and [TSLint](https://nuget.org/packages/TSLint) using your NuGet Package Manager. 
 It should be automatically added to your project.
 
-TSLint's default configuration's are used by default.
+TSLint's default configurations are used by default.
 If you'd like to use your own `tslint.json` file, add a `TSLintConfig` property to your project:
 
 ```xml
@@ -126,7 +126,7 @@ Note that to use special characters (such as `*` wildcards) in `TSLintExclude` y
     <tbody>
         <tr>
             <th><code>TSLintOutput</code></th>
-            <td>Lines of console output form the TSLint CLI.</td>
+            <td>Lines of console output from the TSLint CLI.</td>
         </tr>
     </tbody>
 </table>
