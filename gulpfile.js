@@ -42,7 +42,6 @@ gulp.task("nuget-download", callback => {
 
             callback();
         });
-    
 });
 
 
