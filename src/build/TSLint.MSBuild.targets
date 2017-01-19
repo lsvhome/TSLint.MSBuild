@@ -1,9 +1,73 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Ensures that if this file changes it forces a TypeScript rebuild -->
-  <PropertyGroup>
-    <TypeScriptAllProjects>$(TypeScriptAllProjects);$(MSBuildThisFileFullPath)</TypeScriptAllProjects>
-  </PropertyGroup>
+
+  <UsingTask TaskName="ValidateTSLintOutput" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <InputParameter ParameterType="System.String" Required="true" />
+      <TreatWarningsAsErrors ParameterType="System.Boolean" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Xml" />
+      <Reference Include="System.Xml.Linq" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Xml" />
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+
+            Log.LogMessage("ValidateTSLintOutput Begin", Microsoft.Build.Framework.MessageImportance.High);
+
+            var r = XDocument.Parse("<root>" + InputParameter + "</root>");
+
+            var violations =
+            from root in r.Elements(XName.Get("root", string.Empty))
+            from pmd in root.Elements(XName.Get("pmd", string.Empty))
+            from file in pmd.Elements(XName.Get("file", string.Empty))
+            from v in file.Elements(XName.Get("violation", string.Empty))
+            select new { fileName = file.Attribute(XName.Get("name", string.Empty)), violation = v.Attribute(XName.Get("rule", string.Empty)), begincolumn = v.Attribute(XName.Get("begincolumn", string.Empty)), beginline = v.Attribute(XName.Get("beginline", string.Empty)), priority = v.Attribute(XName.Get("priority", string.Empty)) };
+
+            foreach (var each in violations)
+            {
+                int lineNumberParsed;
+                int? lineNumber = null;
+                if (int.TryParse(each.beginline.Value, out lineNumberParsed))
+                {
+                    lineNumber = lineNumberParsed;
+                }
+
+                int columnNumberParsed;
+                int? columnNumber = null;
+                int? endColumnNumber = null;
+                if (int.TryParse(each.begincolumn.Value, out columnNumberParsed))
+                {
+                    columnNumber = columnNumberParsed;
+                    endColumnNumber = columnNumberParsed + 1;
+                }
+
+                string fileName = each.fileName != null ? each.fileName.Value : null;
+
+                string message = each.violation != null ? each.violation.Value : null;
+
+                if (!string.IsNullOrWhiteSpace(message))
+                {
+                    if (TreatWarningsAsErrors)
+                    {
+                        this.Log.LogError((string)null, (string)null, (string)null, fileName, (int)lineNumber, (int)columnNumber, (int)lineNumber, (int)endColumnNumber, message);
+                    }
+                    else
+                    {
+                        this.Log.LogWarning((string)null, (string)null, (string)null, fileName, (int)lineNumber, (int)columnNumber, (int)lineNumber, (int)endColumnNumber, message);
+                    }
+                }
+            }
+
+            Log.LogMessage("ValidateTSLintOutput End", Microsoft.Build.Framework.MessageImportance.High);
+
+            return !(violations.Any() && TreatWarningsAsErrors);
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
 
   <Target
     AfterTargets="CompileTypeScript"
@@ -12,13 +76,15 @@
 
     <!-- PropertyGroup settings -->
     <PropertyGroup>
-      <TSLintBreakBuildOnError Condition="'$(TSLintBreakBuildOnError)' == ''">false</TSLintBreakBuildOnError>
       <TSLintNodeExe Condition="'$(TSLintNodeExe)' == ''">$([System.IO.Path]::GetFullPath("$(MSBuildThisFileDirectory)..\tools\node-7.3.0.exe"))</TSLintNodeExe>
       <TSLintVersion Condition="'$(TSLintVersion)' == ''">*.*.*</TSLintVersion>
+      <TSLintExe Condition="'$(TSLintExe)' == '' and Exists('$(ProjectDir)node_modules\.bin\tslint.cmd')">$(ProjectDir)node_modules\.bin\tslint.cmd</TSLintExe>
+      <TSLintExe Condition="!Exists('$(TSLintExe)')">$(TSLintNodeExe)</TSLintExe>
     </PropertyGroup>
 
     <!-- Grab the first matching TSLint CLI in a NuGet packages install -->
     <ItemGroup Condition="'$(TSLintCli)' == ''">
+      <TSLintPotentialCli Include="$(ProjectDir)node_modules\tslint\lib\tslint-cli.js" />
       <TSLintPotentialCli Include="$(SolutionDir)packages\tslint.$(TSLintVersion)\tools\node_modules\tslint\lib\tslint-cli.js" />
       <TSLintPotentialCli Include="$(MSBuildThisFileDirectory)..\..\tslint.$(TSLintVersion)\tools\node_modules\tslint\lib\tslint-cli.js" />
     </ItemGroup>
@@ -36,28 +102,35 @@
     <!-- Build the TSLint arguments -->
     <PropertyGroup>
       <TSLintArgs></TSLintArgs>
+      <TSLintArgs Condition="'$(TSLintCli)' != '' and '$(TSLintNodeExe)' == '$(TSLintExe)' ">&quot;$(TSLintCli)&quot;</TSLintArgs>
       <TSLintArgs Condition="'$(TSLintConfig)' != ''">$(TSLintArgs) --config $(TSLintConfig)</TSLintArgs>
-      <TSLintArgs Condition="'@(TSLintExclude)' != ''">$(TSLintArgs) --exclude $(TSLintExcludeJoined)</TSLintArgs>
-      <TSLintArgs>$(TSLintArgs) --format msbuild</TSLintArgs>
       <TSLintArgs Condition="'$(TSLintProject)' != ''">$(TSLintArgs) --project $(TSLintProject)</TSLintArgs>
+      <TSLintArgs>$(TSLintArgs) --format pmd</TSLintArgs>
+      <TSLintArgs>$(TSLintArgs) --forse</TSLintArgs>
       <TSLintArgs Condition="'$(TSLintTypeCheck)' != ''">$(TSLintArgs) --type-check $(TSLintTypeCheck)</TSLintArgs>
       <TSLintArgs Condition="'@(TSLintRulesDirectory)' != ''">$(TSLintArgs) --rules-dir @(TSLintRulesDirectory, ' --rules-dir ')</TSLintArgs>
+      <TSLintArgs Condition="'@(TSLintExclude)' != ''">$(TSLintArgs) --exclude $(TSLintExcludeJoined)</TSLintArgs>
       <TSLintArgs Condition="'$(TSLintExtraArgs)' != ''">$(TSLintArgs) $(TSLintExtraArgs)</TSLintArgs>
       <TSLintArgs Condition="'@(TypeScriptCompile)' != ''">$(TSLintArgs) @(TypeScriptCompile, ' ')</TSLintArgs>
     </PropertyGroup>
 
-    <!-- Run TSLint using the Node executable -->
+    <!-- Run TSLint  -->
+    <Error Condition="!Exists('$(TSLintExe)')" Text="TSLint: file '$(TSLintExe)' not found" />
+    <Error Condition="'$(TSLintNodeExe)' == '$(TSLintExe)' and !Exists('$(TSLintCli)')" Text="TSLint: file '$(TSLintCli)' not found" />
+
+    <Message Text="TSLint: &quot;$(TSLintExe)&quot; $(TSLintArgs)" Importance="High" />
     <Exec
-      Command="&quot;$(TSLintNodeExe)&quot; &quot;$(TSLintCli)&quot; $(TSLintArgs)"
-      Condition="'$(TSLintDisabled)' != 'true'"
+      Command="&quot;$(TSLintExe)&quot; $(TSLintArgs)"
+      Condition="Exists('$(TSLintExe)')"
       ConsoleToMsBuild="true"
-      EchoOff="true"
+      ContinueOnError="true"
       IgnoreExitCode="true">
       <Output TaskParameter="ConsoleOutput" ItemName="TSLintOutput" />
       <Output TaskParameter="ExitCode" PropertyName="TSLintErrorCode" />
     </Exec>
 
-    <!-- Return an error if linter returned exitcode -1 and we should break on errors -->
-    <Error Condition="'$(TSLintErrorCode)' == '-1' and '$(TSLintBreakBuildOnError)' == 'true'" />
+    <ValidateTSLintOutput InputParameter="@(TSLintOutput)" TreatWarningsAsErrors="$(TreatWarningsAsErrors)" ContinueOnError="ErrorAndStop" Condition=" '@(TSLintOutput)' != ''" />
+
   </Target>
+
 </Project>
