@@ -208,3 +208,10 @@ Now, in order:
 Versions 0.3.X and below manually call TSLint on individual folders, whereas 0.4.X defers to the TSLint CLI.
 
 File a [bug report](https://github.com/JoshuaKGoldberg/TSLint.MSBuild/issues) if upgrading causes any issues.
+
+### 1.0.3.0 to 1.0.4.0
+1. Prefer use "$(ProjectDir)node_modules\.bin\tslint.cmd" (in case it exists. It may be installed with 'npm install tslint') 
+   instead "node.exe  tslint-cli.js" (use same node and tslint version as used within project).
+2. Used "--format pmd" with parser instead "--format msbuild"
+3. Property "TreatWarningsAsErrors" (true|false) used as switch warn as errors or warnings
+
